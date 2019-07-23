@@ -5,18 +5,32 @@
   "version": "0.1.0",
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
+    "@vx/drag": "^0.0.189",
+    "@vx/group": "^0.0.189",
+    "@vx/network": "^0.0.189",
+    "@vx/shape": "^0.0.189",
+    "coffeescript": "^2.4.1",
+    "d3-array": "^2.2.0",
+    "d3-force": "^2.0.1",
     "gatsby": "^2.9.2",
     "gatsby-image": "^2.1.4",
     "gatsby-plugin-manifest": "^2.1.1",
     "gatsby-plugin-offline": "^2.1.3",
     "gatsby-plugin-react-helmet": "^3.0.12",
+    "gatsby-plugin-sass": "^2.1.2",
     "gatsby-plugin-sharp": "^2.1.5",
     "gatsby-source-filesystem": "^2.0.39",
     "gatsby-transformer-sharp": "^2.1.21",
+    "node-sass": "^4.12.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
+    "react-annotation": "^2.1.6",
+    "react-burger-menu": "^2.6.10",
     "react-dom": "^16.8.6",
-    "react-helmet": "^5.2.1"
+    "react-expanding-textarea": "^1.0.0",
+    "react-helmet": "^5.2.1",
+    "styled-components": "^4.3.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "prettier": "^1.18.2"
