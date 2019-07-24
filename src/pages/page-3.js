@@ -49,16 +49,15 @@ class ThirdPage extends React.Component {
 
     const lastNode = this.astProcessor.nodes[this.astProcessor.nodes.length - 1]
 
-    /*
     await executeNodesAsync(lastNode, {
-      onWillRun(node, args) {
-        console.log(`Node ${this.current} called with:`, args)
+      onWillRun({ node, args }) {
+        console.log(`Node ${node} called with:`, args)
       },
-      onHasRun(node, args, result) {
-        console.log(`Node ${this.current} returning:`, result)
+      onHasRun({ node, result, resultStack }) {
+        console.log(`Node ${node} returning:`, result)
+        console.log("Result stack:", resultStack)
       },
     })
-    */
 
     return new Promise(resolve =>
       this.setState(

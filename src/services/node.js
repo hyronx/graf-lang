@@ -232,7 +232,7 @@ export default class Node extends Position {
       let finalResult
       try {
         const startTime = getNow()
-        const result = await this.#operation.apply(args.shift(), args)
+        const result = await this.#operation.apply(this, args)
         const endTime = getNow()
         const nodeResult = new NodeResult(this, result, startTime, endTime)
         this.#resultHistory.push(nodeResult)
@@ -283,7 +283,7 @@ export default class Node extends Position {
    */
   linkWith(nextNode, linkType=null) {
     this.#nextNodes.push(nextNode)
-    nextNode.#prevNode = nextNode
+    nextNode.#prevNode = this
 
     let link = null
     if (linkType === LinkType.LEFT_TO_RIGHT ||

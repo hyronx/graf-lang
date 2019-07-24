@@ -19,59 +19,74 @@ class NodeWalker {
    * }} options
    */
   constructor(root, options = {}) {
-    this.current = root
-    this.#nodesToWalkQueue.push(this.current)
+    this.#nodesToWalkQueue.push(root)
 
     if (options.onWillRun) this.onWillRun = options.onWillRun
     if (options.onHasRun) this.onHasRun = options.onHasRun
   }
 
-  async onWillRun(args) {}
+  async onWillRun({ args }) {}
 
-  async onHasRun(args, result) {}
+  async onHasRun({ args, result }) {}
 
   /**
    * Prepends all following nodes of the current one
    * @return {number} Returns the number of prepended nodes
    */
   prependNextNodes() {
-    const current = this.current
-    let nodes = current.nextNodes.slice(0).reverse()
-    let count = nodes.length
-    for (const node of nodes) {
-      this.current = node
-      count += this.prependNextNodes()
-    }
-
+    let nodes = this.current.nextNodes.slice(0)
     this.#nodesToWalkQueue = nodes.concat(this.#nodesToWalkQueue)
-    this.current = current
+
+    let count = nodes.length
+    for (const current of nodes) {
+      if (current.isVisual()) nodes = current.nextNodes
+      else count += 1
+    }
     return count
+  }
+
+  appendNode() {
+    // Prepend all following nodes of the next right node
+    const rightNode = this.current.nextNodes.find(n => n.column > this.current.column)
+    if (rightNode) {
+      const currentNode = this.current
+      this.current = rightNode
+      const prependedCount = this.prependNextNodes()
+      this.current = currentNode
+      this.#nodesToWalkQueue.push(this.current)
+
+      if (this.current.count) {
+        this.current.count = prependedCount
+      }
+      this.current.append = false
+    } else {
+      throw new Error("A Node should only be append if there is a node following in the next column")
+    }
   }
 
   async execute() {
     while ((this.current = this.#nodesToWalkQueue.shift()) !== undefined) {
+      //debugger
       if (this.current.isVisual()) {
         this.prependNextNodes()
       } else if (!this.current.isRunnable) {
         this.#nodesToWalkQueue.splice(-1, 0, ...this.current.nextNodes)
       } else if (this.current.append) {
-        const prependedCount = this.prependNextNodes()
-        this.#nodesToWalkQueue.push(this.current)
-
-        if (this.current.count) {
-          this.current.count = prependedCount
-        }
-        this.current.append = false
+        this.appendNode()
       } else {
         const { args: opArgs, hasVarArg } = this.current.operation
         let args
         if (opArgs.length > 0) {
           args = opArgs.map(() => this.#resultStack.pop())
         } else if (hasVarArg && this.current.count) {
-          args = this.#resultStack.splice(-1, this.current.count)
+          args = this.#resultStack.splice(-this.current.count, this.current.count)
         }
 
-        let cbRes = await this.onWillRun(args)
+        let cbRes = await this.onWillRun({
+          node: this.current,
+          args,
+          resultStack: this.#resultStack
+        })
         if (Array.isArray(cbRes)) args = cbRes
         else if (cbRes === NodeWalker.SKIP) continue
 
@@ -81,17 +96,30 @@ class NodeWalker {
             .filter(a => a !== undefined)
             .map(a => a.data)
 
-          result = await this.current.run.apply(args)
+          result = await this.current.run.apply(this.current, args)
         } else {
           result = await this.current.run()
         }
         this.#resultStack.push(result)
 
-        cbRes = await this.onHasRun(args, result)
+        cbRes = await this.onHasRun({
+          node: this.current,
+          args,
+          result,
+          resultStack: this.#resultStack
+        })
         if (Array.isArray(cbRes)) result = cbRes
         else if (cbRes === NodeWalker.SKIP) continue
 
-        this.#nodesToWalkQueue.splice(-1, 0, ...this.current.nextNodes)
+        if (this.current.append === false)
+          // Skip the following right node because it has already been prepended
+          this.#nodesToWalkQueue.splice(
+            -1,
+            0,
+            ...this.current.nextNodes.filter(n => n.column === this.current.column)
+          )
+        else
+          this.#nodesToWalkQueue.splice(-1, 0, ...this.current.nextNodes)
       }
     }
   }

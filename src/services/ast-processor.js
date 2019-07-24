@@ -135,8 +135,8 @@ class ASTProcessor {
     )
 
     lastPropOfCallVarNode.operation = new Operation(
-      async function(thisArg, ...args) {
-        return thisArg[lastPropOfCallVarNode.value].apply(thisArg, args)
+      async function(callee, ...args) {
+        return callee[this.value].apply(callee, args)
       },
       {
         result: new Result("Object"),
@@ -145,6 +145,9 @@ class ASTProcessor {
         ),
       }
     )
+    lastPropOfCallVarNode.append = true
+    lastPropOfCallVarNode.count = true
+
     return callVarNode
   }
 
@@ -239,7 +242,7 @@ class ASTProcessor {
       new Node(opAstNode.operator, position.x, position.y, position.column, {
         operation: new Operation(
           async function(first, second) {
-            return eval(`${first}${opAstNode.operator}${second}`)
+            return eval(`${first} ${this.name} ${second}`)
           },
           {
             result: new Result("Object"),
@@ -250,6 +253,8 @@ class ASTProcessor {
             isAsync: true,
           }
         ),
+        append: true,
+        count: true,
       })
     )
   }
