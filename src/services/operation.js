@@ -6,7 +6,7 @@ export class Argument {
    * @param {function|null} validator
    * @param {string|null} description
    */
-  constructor(name, type, validator=null, description=null) {
+  constructor(name, type, validator = null, description = null) {
     this.name = name
     this.type = type
     this.validate = validator
@@ -22,7 +22,7 @@ export class Result extends Argument {
    * @param {function|null} validator
    * @param {string|null} description
    */
-  constructor(type, name=null, validator=null, description=null) {
+  constructor(type, name = null, validator = null, description = null) {
     super(name || "result", type, validator, description)
   }
 
@@ -51,10 +51,7 @@ export default class Operation {
    *  isGenerator: boolean|undefined,
    * }} options
    */
-  constructor(
-    operation,
-    options={},
-  ) {
+  constructor(operation, options = {}) {
     this.#operation = operation
     this.#result = Object.freeze(
       options.result || new Result("undefined", "nothing")
@@ -65,11 +62,17 @@ export default class Operation {
     this.isGenerator = options.isGenerator || false
   }
 
-  get operation() { return this.#operation }
+  get operation() {
+    return this.#operation
+  }
 
-  get args() { return this.#args.slice(0) }
+  get args() {
+    return this.#args.slice(0)
+  }
 
-  get result() { return this.#result }
+  get result() {
+    return this.#result
+  }
 
   /**
    * Validates the provided array as arguments for this operation
@@ -79,20 +82,24 @@ export default class Operation {
   validate(args) {
     args.forEach((a, i) => {
       if (!this.#args[i])
-        throw new Error("Too many arguments for this operation")
+        throw new Error(
+          `Argument ${a} has a different type then the expected ${this.#args[i].type}`
+        )
 
       if (this.#args[i].validate && !this.#args[i].validate(a))
         throw new Error(`Argument ${a} is not valid for this operation`)
 
       if (this.#args[i].type !== a.constructor.name)
-        throw new Error(`Argument ${a} has a different type then the expected ${this.#args[i].type}`)
+        throw new Error(
+          `Argument ${a} has a different type then the expected ${this.#args[i].type}`
+        )
     })
     return true
   }
 
   call(thisArg, ...argArray) {
     if (this.doValidate) this.validate(argArray)
-    return this.#operation.call(thisArg, ...argArray)
+    return this.#operation.apply(thisArg, argArray)
   }
 
   apply(thisArg, argArray) {

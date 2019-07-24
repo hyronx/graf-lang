@@ -1,4 +1,5 @@
 import React from "react"
+import PropTypes from "prop-types"
 import { Link } from "gatsby"
 import styled from "styled-components"
 import { max } from "d3-array"
@@ -15,11 +16,10 @@ const Wrapper = styled.div`
     min-height: 200px;
     max-height: 200px;
   }
-  
+
   height: 200px;
 `
 
-//const ThirdPage = () =>
 class ThirdPage extends React.Component {
   constructor(props) {
     super(props)
@@ -39,47 +39,57 @@ class ThirdPage extends React.Component {
     }
   }
 
-  async addNodes(newNodes) {
-    await this.setState(async () => {
-      this.astProcessor.process(newNodes)
-      console.log(this.astProcessor.nodes)
-
-      const lastNode = this.astProcessor.nodes[this.astProcessor.nodes.length - 1]
-      await executeNodesAsync(lastNode, {
-        onWillRun(node, args) {
-          console.log(`Node ${this.current} called with:`, args)
-        },
-        onHasRun(node, args, result) {
-          console.log(`Node ${this.current} returning:`, result)
-        }
-      })
-
-      return {
-        height: max(this.astProcessor.nodes.map(n => n.y)) + 200,
-        width: max(this.astProcessor.nodes.map(n => n.x)) + 200,
-        nodes: this.astProcessor.nodes,
-        links: this.astProcessor.links,
-      }
-    })
+  componentDidUpdate() {
     console.log(this.state)
   }
 
+  async addNodes(newNodes) {
+    this.astProcessor.process(newNodes)
+    console.log(this.astProcessor.nodes)
+
+    const lastNode = this.astProcessor.nodes[this.astProcessor.nodes.length - 1]
+
+    /*
+    await executeNodesAsync(lastNode, {
+      onWillRun(node, args) {
+        console.log(`Node ${this.current} called with:`, args)
+      },
+      onHasRun(node, args, result) {
+        console.log(`Node ${this.current} returning:`, result)
+      },
+    })
+    */
+
+    return new Promise(resolve =>
+      this.setState(
+        {
+          height: max(this.astProcessor.nodes.map(n => n.y)) + 200,
+          width: max(this.astProcessor.nodes.map(n => n.x)) + 200,
+          nodes: this.astProcessor.nodes,
+          links: this.astProcessor.links,
+        },
+        resolve
+      )
+    )
+  }
+
   reset() {
-    this.setState(() => {
-      this.astProcessor.reset()
-      return {
-        nodes: [],
-        links: [],
-        height: this.props.height,
-        width: this.props.width,
-      }
+    this.astProcessor.reset()
+    return this.setState({
+      nodes: [],
+      links: [],
+      height: this.props.height,
+      width: this.props.width,
     })
   }
 
   render() {
     return (
-      <Layout outerContainerId={this.outerContainerId} pageWrapId={this.pageWrapId}>
-        <SEO title="Page three"/>
+      <Layout
+        outerContainerId={this.outerContainerId}
+        pageWrapId={this.pageWrapId}
+      >
+        <SEO title="Page three" />
         <Graph
           height={this.state.height}
           width={this.state.width}
@@ -89,14 +99,16 @@ class ThirdPage extends React.Component {
           }}
         />
         <Wrapper>
-          <CodeInput onChange={(text) => {
-            this.astProcessor.reset()
-            try {
-              this.addNodes(CoffeeScript.nodes(text)).finally()
-            } catch (e) {
-              console.error(e)
-            }
-          }}/>
+          <CodeInput
+            onChange={text => {
+              this.astProcessor.reset()
+              try {
+                this.addNodes(CoffeeScript.nodes(text)).finally()
+              } catch (e) {
+                console.error(e)
+              }
+            }}
+          />
         </Wrapper>
         <button type={"button"} id={"reset-button"} onClick={this.reset}>
           Reset
@@ -106,6 +118,11 @@ class ThirdPage extends React.Component {
       </Layout>
     )
   }
+}
+
+ThirdPage.propTypes = {
+  height: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
 }
 
 ThirdPage.defaultProps = {

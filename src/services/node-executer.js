@@ -18,7 +18,7 @@ class NodeWalker {
    *  onHasRun: function|undefined
    * }} options
    */
-  constructor(root, options={}) {
+  constructor(root, options = {}) {
     this.current = root
     this.#nodesToWalkQueue.push(this.current)
 
@@ -30,16 +30,22 @@ class NodeWalker {
 
   async onHasRun(args, result) {}
 
+  /**
+   * Prepends all following nodes of the current one
+   * @return {number} Returns the number of prepended nodes
+   */
   prependNextNodes() {
     const current = this.current
     let nodes = current.nextNodes.slice(0).reverse()
+    let count = nodes.length
     for (const node of nodes) {
       this.current = node
-      this.prependNextNodes()
+      count += this.prependNextNodes()
     }
 
     this.#nodesToWalkQueue = nodes.concat(this.#nodesToWalkQueue)
     this.current = current
+    return count
   }
 
   async execute() {
@@ -48,14 +54,22 @@ class NodeWalker {
         this.prependNextNodes()
       } else if (!this.current.isRunnable) {
         this.#nodesToWalkQueue.splice(-1, 0, ...this.current.nextNodes)
+      } else if (this.current.append) {
+        const prependedCount = this.prependNextNodes()
+        this.#nodesToWalkQueue.push(this.current)
+
+        if (this.current.count) {
+          this.current.count = prependedCount
+        }
+        this.current.append = false
       } else {
         const { args: opArgs, hasVarArg } = this.current.operation
         let args
-        if (opArgs.length > 0)
+        if (opArgs.length > 0) {
           args = opArgs.map(() => this.#resultStack.pop())
-        else if (hasVarArg)
-          // TODO: Definitely wrong
-          args = this.#resultStack.pop()
+        } else if (hasVarArg && this.current.count) {
+          args = this.#resultStack.splice(-1, this.current.count)
+        }
 
         let cbRes = await this.onWillRun(args)
         if (Array.isArray(cbRes)) args = cbRes
@@ -71,7 +85,6 @@ class NodeWalker {
         } else {
           result = await this.current.run()
         }
-        result = Array.isArray(result) ? result : [result]
         this.#resultStack.push(result)
 
         cbRes = await this.onHasRun(args, result)
@@ -83,8 +96,6 @@ class NodeWalker {
     }
   }
 }
-
-const resultStack = []
 
 /**
  * Executes all nodes following the root
@@ -98,7 +109,7 @@ const resultStack = []
  *  onHasRun: function|undefined
  * }} options
  */
-export const executeNodesAsync = async (root, options={}) => {
+export const executeNodesAsync = async (root, options = {}) => {
   const walker = new NodeWalker(root, options)
   return walker.execute()
 }
@@ -140,11 +151,8 @@ export const executeNodesAsync = async (root, options={}) => {
  *  onHasRun: function|undefined
  * }} options
  */
-export const executeNodes = (root, callback, options={}) => {
-  executeNodesAsync(root, options).then(
-    callback,
-      e => callback(undefined, e)
-  )
+export const executeNodes = (root, callback, options = {}) => {
+  executeNodesAsync(root, options).then(callback, e => callback(undefined, e))
 }
 
 export default executeNodesAsync

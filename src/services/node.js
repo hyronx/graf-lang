@@ -6,7 +6,7 @@ import {
   createLtDLTLink,
   createLtDRLink,
   createLtRLink,
-  LinkType
+  LinkType,
 } from "./link"
 
 const getNow = () => {
@@ -65,7 +65,7 @@ export default class Node extends Position {
   onRunning = () => {}
   onFinished = () => {}
   #isRunning = false
-  #operation
+  #operation = null
   #resultHistory = []
   #errorHistory = []
   #prevNode = null
@@ -79,15 +79,15 @@ export default class Node extends Position {
    * @param {number} column - The column used for positioning
    * @param {object} data - Additional data to add to the node
    */
-  constructor(name, x, y, column, data={}) {
+  constructor(name, x, y, column, data = {}) {
     super(x, y, column)
     this.name = name
-    for (const [ key, value ] of this.filterAttributes(data)) {
+    for (const [key, value] of this.filterAttributes(data)) {
       this[key] = value
     }
   }
 
-  filterAttributes(attrs, useObjectEntries=true) {
+  filterAttributes(attrs, useObjectEntries = true) {
     let entries
     if (useObjectEntries) {
       entries = Object.entries(attrs)
@@ -161,7 +161,7 @@ export default class Node extends Position {
    * @returns {Point}
    */
   get center() {
-    return new Point(this.x + (this.width / 2), this.y + (this.height / 2))
+    return new Point(this.x + this.width / 2, this.y + this.height / 2)
   }
 
   /**
@@ -169,7 +169,7 @@ export default class Node extends Position {
    * @returns {Point}
    */
   get bottomCenter() {
-    return new Point(this.x + (this.width / 2), this.y + this.height)
+    return new Point(this.x + this.width / 2, this.y + this.height)
   }
 
   /**
@@ -177,7 +177,7 @@ export default class Node extends Position {
    * @returns {Point}
    */
   get topCenter() {
-    return new Point(this.x + (this.width / 2), this.y)
+    return new Point(this.x + this.width / 2, this.y)
   }
 
   /**
@@ -185,7 +185,7 @@ export default class Node extends Position {
    * @returns {Point}
    */
   get leftCenter() {
-    return new Point(this.x, this.y + (this.height / 2))
+    return new Point(this.x, this.y + this.height / 2)
   }
 
   /**
@@ -193,11 +193,11 @@ export default class Node extends Position {
    * @returns {Point}
    */
   get rightCenter() {
-    return new Point(this.x + this.width, this.y + (this.height / 2))
+    return new Point(this.x + this.width, this.y + this.height / 2)
   }
 
   get isRunnable() {
-    return this.#operation !== undefined
+    return this.#operation !== null
   }
 
   /**
@@ -207,7 +207,7 @@ export default class Node extends Position {
    */
   clone(attributes) {
     const filteredAttrs = {}
-    for (const [ key, value ] of this.filterAttributes(attributes, false)) {
+    for (const [key, value] of this.filterAttributes(attributes, false)) {
       filteredAttrs[key] = this[value]
     }
 
@@ -216,7 +216,7 @@ export default class Node extends Position {
       attributes.x || this.x,
       attributes.y || this.y,
       attributes.column || this.column,
-      filteredAttrs,
+      filteredAttrs
     )
   }
 
@@ -225,7 +225,7 @@ export default class Node extends Position {
   }
 
   async run(...args) {
-    if (this.#operation !== undefined) {
+    if (this.#operation !== null) {
       this.#isRunning = true
       await this.onRunning()
 

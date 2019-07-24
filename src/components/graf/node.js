@@ -208,14 +208,7 @@ class Node extends React.Component {
         onDragMove={this.afterClickDragMove}
         onDragEnd={this.props.onDragEnd}
       >
-        {({
-            dragStart,
-            dragEnd,
-            dragMove,
-            isDragging,
-            dx,
-            dy,
-          }) => {
+        {({ dragStart, dragEnd, dragMove, isDragging, dx, dy }) => {
           return (
             <Group
               className={"vx-network-node"}
