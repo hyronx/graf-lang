@@ -24,6 +24,7 @@ class NodeWalker {
       .filter(n => n.isRunnable)
       .sort((a, b) => a.execStep - b.execStep)
 
+    if (options.onTry) this.onTry = options.onTry
     if (options.onWillRun) this.onWillRun = options.onWillRun
     if (options.onHasRun) this.onHasRun = options.onHasRun
   }
@@ -37,9 +38,11 @@ class NodeWalker {
     return nodesToWalk
   }
 
-  async onWillRun({ args }) {}
+  async onTry({ node }) {}
 
-  async onHasRun({ args, result }) {}
+  async onWillRun({ node, args }) {}
+
+  async onHasRun({ node, args, result }) {}
 
   /**
    * Prepends all following nodes of the current one
@@ -80,7 +83,12 @@ class NodeWalker {
 
   async execute() {
     for (this.current of this.#nodesToWalkQueue) {
-      if (this.current.execFlags.skip) continue
+      this.onTry({ node: this.current })
+      if (
+        this.current.execFlags.skip ||
+        this.current.isVisual() ||
+        this.current.isRunnable()
+      ) continue
 
       const { args: opArgs, hasVarArg } = this.current.operation
 

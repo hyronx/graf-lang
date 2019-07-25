@@ -29,35 +29,28 @@ class Node extends React.Component {
     const { node, onDragMove, links } = this.props
 
     const nodeAsSourceLinks = links.filter(({ source }) =>
-      node.name === source.name
+      node.id === source.id
     )
     for (let link of nodeAsSourceLinks) {
-      const { x, y } = this.outerRim.current.props.data
-        .find(d => d.isOutputPart())
-        .centroid
-
+      // TODO: use clone
       link.component.update({
         source: {
           name: node.name,
-          x: x + node.x + dx,
-          y: y + node.y + dy,
+          x: node.x + dx,
+          y: node.y + dy,
         },
       })
     }
 
     const nodeAsTargetLinks = links.filter(({ target }) =>
-      node.name === target.name
+      node.id === target.id
     )
     for (let link of nodeAsTargetLinks) {
-      const { x, y } = this.outerRim.current.props.data
-        .find(d => d.isInputPart())
-        .centroid
-
       link.component.update({
         target: {
           name: node.name,
-          x: x + node.x + dx,
-          y: y + node.y + dy,
+          x: node.x + dx,
+          y: node.y + dy,
         },
       })
     }

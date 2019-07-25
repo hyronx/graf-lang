@@ -267,20 +267,26 @@ class ASTProcessor {
   }
 
   processCode(astNode, position) {
-    const bodyNode = this.process(astNode.body, {
-      x: position.x,
-      y: this.getNextNodeYPosition(),
-      column: position.column,
-    })
-    bodyNode.execFlags.skip = true
-
     const paramNode = this.createElementNodes(
       astNode,
       "params",
       new Node("->", position.x, position.y, position.column, {
         operation: new Operation(
           function() {
-            return (...args) => bodyNode.runCatching(...args)
+            return (...args) => {
+              const params = this.nextNodes
+                .find(node => node.column > this.column)
+                .nextNodes
+
+              const context = {}
+              for (let i = 0; i < params.length; i++) {
+                context[params[i].name] = args[i]
+              }
+
+              const bodyArgs = bodyNode.sequenceNodes
+                .map(node => node.value || context[node.name])
+              return bodyNode.runCatching.apply(bodyNode, bodyArgs)
+            }
           },
           {
             result: new Result("Function"),
@@ -292,6 +298,13 @@ class ASTProcessor {
         },
       })
     )
+
+    const bodyNode = this.process(astNode.body, {
+      x: position.x,
+      y: this.getNextNodeYPosition(),
+      column: position.column,
+    })
+    bodyNode.execFlags.skip = true
     this.links.push(paramNode.linkWith(bodyNode, LinkType.BOTTOM_TO_TOP))
 
     return paramNode
@@ -310,8 +323,8 @@ class ASTProcessor {
       new Node(opAstNode.operator, position.x, position.y, position.column, {
         operation: new Operation(
           function(first, second) {
+            console.log(`${first} ${this.name} ${second}`)
             const opResult = eval(`${first} ${this.name} ${second}`)
-            console.log(`${first} ${this.name} ${second} = ${opResult}`)
             return opResult
           },
           {

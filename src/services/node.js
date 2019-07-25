@@ -169,6 +169,39 @@ export default class Node extends Position {
   }
 
   /**
+   * Returns the node following this one on the right side/next column
+   * @return {Node|undefined}
+   */
+  get nextRightNode() {
+    return this.#nextNodes.find(node => node.column > this.column)
+  }
+
+  /**
+   * Returns the nodes following under this one/in this column
+   * @return {Node[]}
+   */
+  get nextBottomNodes() {
+    return this.#nextNodes.filter(node => node.column === this.column)
+  }
+
+  /**
+   * Returns the nodes following the right side node in its column
+   * @return {Node[]|undefined}
+   */
+  get sequenceNodes() {
+    const seqNode = this.nextRightNode
+    if (seqNode === undefined) {
+      return undefined
+    } else {
+      let nodes = seqNode.nextBottomNodes
+      for (const current of nodes) {
+        nodes = nodes.concat(current.nextBottomNodes)
+      }
+      return nodes
+    }
+  }
+
+  /**
    * Returns the center of the visual representation of this node
    * @returns {Point}
    */
@@ -241,15 +274,15 @@ export default class Node extends Position {
     return `("${this.name}" { id: ${this.id} })`
   }
 
-  async run(...args) {
+  run(...args) {
     if (this.#operation !== null) {
       this.#isRunning = true
-      await this.onRunning()
+      this.onRunning()
 
       let finalResult
       try {
         const startTime = getNow()
-        const result = await this.#operation.apply(this, args)
+        const result = this.#operation.apply(this, args)
         const endTime = getNow()
         const nodeResult = new NodeResult(this, result, startTime, endTime)
         this.#resultHistory.push(nodeResult)
@@ -261,14 +294,14 @@ export default class Node extends Position {
         finalResult = error
       } finally {
         this.#isRunning = false
-        await this.onFinished()
+        this.onFinished()
       }
       return finalResult
     }
   }
 
-  async runCatching(...args) {
-    const result = await this.run.apply(this, args)
+  runCatching(...args) {
+    const result = this.run.apply(this, args)
     if (result.constructor.name === "NodeResult") {
       return result.data
     } else if (result.constructor.name === "NodeError") {
@@ -357,7 +390,7 @@ export class ReportNode extends Node {
     this.#returningNode = returningNode
   }
 
-  async run(...args) {
+  run(...args) {
     return this.#returningNode.run.apply(this, args)
   }
 
