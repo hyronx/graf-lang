@@ -45,7 +45,12 @@ class ThirdPage extends React.Component {
 
   async addNodes(newNodes) {
     this.astProcessor.process(newNodes)
-    console.log(this.astProcessor.nodes)
+    console.log(
+      "Nodes sorted:",
+      this.astProcessor.nodes
+        .filter(n => n.isRunnable)
+        .sort((a, b) => a.execStep - b.execStep)
+    )
 
     const lastNode = this.astProcessor.nodes[this.astProcessor.nodes.length - 1]
 

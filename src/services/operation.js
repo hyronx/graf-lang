@@ -70,6 +70,17 @@ export default class Operation {
     return this.#args.slice(0)
   }
 
+  set args(newArgs) {
+    if (this.hasVarArg) {
+      this.#args = newArgs
+      this.hasVarArg = false
+    } else {
+      throw new Error(
+        "The arguments of this operation has already been specified"
+      )
+    }
+  }
+
   get result() {
     return this.#result
   }

@@ -19,10 +19,22 @@ class NodeWalker {
    * }} options
    */
   constructor(root, options = {}) {
-    this.#nodesToWalkQueue.push(root)
+    this.current = root
+    this.#nodesToWalkQueue = this.getNodesToWalk(root)
+      .filter(n => n.isRunnable)
+      .sort((a, b) => a.execStep - b.execStep)
 
     if (options.onWillRun) this.onWillRun = options.onWillRun
     if (options.onHasRun) this.onHasRun = options.onHasRun
+  }
+
+  getNodesToWalk(root) {
+    let nodesToWalk = root.isLogical() ? [root] : []
+    for (const current of root.nextNodes) {
+      if (!current.execFlags.skip)
+        nodesToWalk = nodesToWalk.concat(this.getNodesToWalk(current))
+    }
+    return nodesToWalk
   }
 
   async onWillRun({ args }) {}
@@ -34,7 +46,7 @@ class NodeWalker {
    * @return {number} Returns the number of prepended nodes
    */
   prependNextNodes() {
-    let nodes = this.current.nextNodes.slice(0)
+    let nodes = this.current.nextNodes
     this.#nodesToWalkQueue = nodes.concat(this.#nodesToWalkQueue)
 
     let count = nodes.length
@@ -47,7 +59,9 @@ class NodeWalker {
 
   appendNode() {
     // Prepend all following nodes of the next right node
-    const rightNode = this.current.nextNodes.find(n => n.column > this.current.column)
+    const rightNode = this.current.nextNodes.find(
+      n => n.column > this.current.column
+    )
     if (rightNode) {
       const currentNode = this.current
       this.current = rightNode
@@ -65,12 +79,67 @@ class NodeWalker {
   }
 
   async execute() {
+    for (this.current of this.#nodesToWalkQueue) {
+      if (this.current.execFlags.skip) continue
+
+      const { args: opArgs, hasVarArg } = this.current.operation
+
+      let args
+      if (opArgs.length > 0) {
+        args = this.#resultStack.splice(-opArgs.length, opArgs.length)
+      } else if (hasVarArg && this.current.count) {
+        args = this.#resultStack.splice(-this.current.count, this.current.count)
+      }
+
+      let cbRes = await this.onWillRun({
+        node: this.current,
+        args,
+        resultStack: this.#resultStack.slice(0),
+      })
+      if (Array.isArray(cbRes)) args = cbRes
+      else if (cbRes === NodeWalker.SKIP) continue
+
+      let result
+      if (Array.isArray(args)) {
+        args = (await Promise.all(args))
+          .filter(a => a !== undefined)
+          .map(a => a.data)
+
+        result = await this.current.run.apply(this.current, args)
+      } else {
+        result = await this.current.run()
+      }
+      this.#resultStack.push(result)
+
+      cbRes = await this.onHasRun({
+        node: this.current,
+        args,
+        result,
+        resultStack: this.#resultStack.slice(0),
+      })
+      if (Array.isArray(cbRes)) result = cbRes
+      else if (cbRes === NodeWalker.SKIP) continue
+
+      if (this.current.append === false) {
+        // Skip the following right node because it has already been prepended
+        this.#nodesToWalkQueue = this.current.nextNodes
+          .filter(n => n.column === this.current.column)
+          .concat(this.#nodesToWalkQueue)
+      } else {
+        this.#nodesToWalkQueue = this.current.nextNodes.concat(
+          this.#nodesToWalkQueue
+        )
+      }
+    }
+  }
+  /*
+  async execute() {
     while ((this.current = this.#nodesToWalkQueue.shift()) !== undefined) {
       //debugger
-      if (this.current.isVisual()) {
+      if (this.current.isVisual() || !this.current.isRunnable) {
         this.prependNextNodes()
-      } else if (!this.current.isRunnable) {
-        this.#nodesToWalkQueue.splice(-1, 0, ...this.current.nextNodes)
+      } else if (this.current.skip) {
+        this.current.skip = false
       } else if (this.current.append) {
         this.appendNode()
       } else {
@@ -79,13 +148,16 @@ class NodeWalker {
         if (opArgs.length > 0) {
           args = opArgs.map(() => this.#resultStack.pop())
         } else if (hasVarArg && this.current.count) {
-          args = this.#resultStack.splice(-this.current.count, this.current.count)
+          args = this.#resultStack.splice(
+            -this.current.count,
+            this.current.count
+          )
         }
 
         let cbRes = await this.onWillRun({
           node: this.current,
           args,
-          resultStack: this.#resultStack
+          resultStack: this.#resultStack,
         })
         if (Array.isArray(cbRes)) args = cbRes
         else if (cbRes === NodeWalker.SKIP) continue
@@ -106,23 +178,26 @@ class NodeWalker {
           node: this.current,
           args,
           result,
-          resultStack: this.#resultStack
+          resultStack: this.#resultStack,
         })
         if (Array.isArray(cbRes)) result = cbRes
         else if (cbRes === NodeWalker.SKIP) continue
 
-        if (this.current.append === false)
+        if (this.current.append === false) {
           // Skip the following right node because it has already been prepended
-          this.#nodesToWalkQueue.splice(
-            -1,
-            0,
-            ...this.current.nextNodes.filter(n => n.column === this.current.column)
+          this.#nodesToWalkQueue = this.current.nextNodes
+            .filter(n => n.column === this.current.column)
+            .concat(this.#nodesToWalkQueue)
+        } else {
+          this.#nodesToWalkQueue = this.current.nextNodes.concat(
+            this.#nodesToWalkQueue
           )
-        else
-          this.#nodesToWalkQueue.splice(-1, 0, ...this.current.nextNodes)
+        }
       }
     }
   }
+}
+*/
 }
 
 /**

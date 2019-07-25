@@ -64,6 +64,8 @@ export default class Node extends Position {
   height = 50
   onRunning = () => {}
   onFinished = () => {}
+  execStep = null
+  execFlags = {}
   #isRunning = false
   #operation = null
   #resultHistory = []
@@ -98,11 +100,8 @@ export default class Node extends Position {
       }
     }
 
-    return entries.filter(([ key ]) =>
-      key !== "name" &&
-      key !== "x" &&
-      key !== "y" &&
-      key !== "column"
+    return entries.filter(([key]) =>
+        key !== "name" && key !== "x" && key !== "y" && key !== "column"
     )
   }
 
@@ -149,11 +148,24 @@ export default class Node extends Position {
   }
 
   /**
-   * Returns the on this Node following Nodes
+   * Returns all nodes following this one
    * @returns {Node[]}
    */
   get nextNodes() {
     return this.#nextNodes.slice(0)
+  }
+
+  /**
+   * Returns the logical nodes following this one
+   * @returns {Node[]}
+   */
+  get nextLogicalNodes() {
+    const nextLogicalNodes = []
+    for (const next of this.#nextNodes) {
+      if (next.isVisual()) nextLogicalNodes.push(next.nextLogicalNodes)
+      else nextLogicalNodes.push(next)
+    }
+    return nextLogicalNodes.flat()
   }
 
   /**
@@ -207,8 +219,13 @@ export default class Node extends Position {
    */
   clone(attributes) {
     const filteredAttrs = {}
-    for (const [key, value] of this.filterAttributes(attributes, false)) {
-      filteredAttrs[key] = this[value]
+    const filteredAttrsArray = this.filterAttributes(
+      // TODO: Copy *all* attributes from this
+      Object.assign({}, this, attributes),
+      false
+    )
+    for (const [key, value] of filteredAttrsArray) {
+      filteredAttrs[key] = value
     }
 
     return new Node(
@@ -281,16 +298,20 @@ export default class Node extends Position {
    * @param {LinkType|null} linkType - An optional link type; will automatically be chosen otherwise
    * @returns {Link}
    */
-  linkWith(nextNode, linkType=null) {
+  linkWith(nextNode, linkType = null) {
     this.#nextNodes.push(nextNode)
     nextNode.#prevNode = this
 
     let link = null
-    if (linkType === LinkType.LEFT_TO_RIGHT ||
-      (linkType === null && this.y === nextNode.y)) {
+    if (
+      linkType === LinkType.LEFT_TO_RIGHT ||
+      (linkType === null && this.y === nextNode.y)
+    ) {
       link = createLtRLink(this, nextNode)
-    } else if (linkType === LinkType.BOTTOM_TO_TOP ||
-      (linkType === null && this.x === nextNode.x)) {
+    } else if (
+      linkType === LinkType.BOTTOM_TO_TOP ||
+      (linkType === null && this.x === nextNode.x)
+    ) {
       link = createBtTLink(this, nextNode)
     } else if (linkType === LinkType.BOTTOM_TO_DEEPER_RIGHT) {
       link = createBtDRLink(this, nextNode)
@@ -311,18 +332,14 @@ export class SequenceNode extends Node {
    * @param {number} column - The column used for positioning
    * @param {object} data - Additional data to add to the node
    */
-  constructor(x, y, column, data={}) {
-    super("·", x, y, column, Object.assign({
-      width: 20,
-      height: 20
-    }, data))
+  constructor(x, y, column, data = {}) {
+    super("·", x, y, column, Object.assign({ width: 20, height: 20 }, data))
   }
 
   isVisual() {
     return true
   }
 }
-
 
 export class ReportNode extends Node {
   #returningNode
@@ -335,10 +352,7 @@ export class ReportNode extends Node {
    * @param {Node} returningNode - The node returning results and errors to this node
    */
   constructor(x, y, column, returningNode) {
-    super("#>", x, y, column, {
-      width: 50,
-      height: 50
-    })
+    super("#>", x, y, column, { width: 50, height: 50 })
 
     this.#returningNode = returningNode
   }

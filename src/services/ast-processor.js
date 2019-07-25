@@ -11,6 +11,8 @@ import {
 import Operation, { Argument, Result } from "./operation"
 
 class ASTProcessor {
+  currentExecStep = 0
+
   constructor(props = { yMargin: 100 }) {
     this.nodes = []
     this.links = []
@@ -32,7 +34,20 @@ class ASTProcessor {
       : basePosition.x + dX
   }
 
-  createElementNodes(baseNode, elementsKey, baseGrafNode) {
+  createElementNodes(
+    baseNode,
+    elementsKey,
+    baseGrafNode
+    //elementNodesAttrs = {}
+  ) {
+    if (
+      //baseGrafNode.isRunnable &&
+      !baseGrafNode.execFlags.skip &&
+      !baseGrafNode.execFlags.append
+    ) {
+      baseGrafNode.execStep = ++this.currentExecStep
+    }
+
     const elementNodes = baseNode[elementsKey].map((element, index) =>
       this.process(element, {
         x: this.getNodeXPosition(baseGrafNode, 320),
@@ -51,6 +66,16 @@ class ASTProcessor {
       }
     })
 
+    if (baseGrafNode.execFlags.count) {
+      if (baseGrafNode.operation) {
+        baseGrafNode.operation.args = elementNodes.map(
+          (node, i) => new Argument(`_arg${i + 1}`, this.getArgumentType(node))
+        )
+      } else {
+        baseGrafNode.execFlags.count = elementNodes.length
+      }
+    }
+
     const elementNode = new SequenceNode(
       this.getNodeXPosition(baseGrafNode, 250),
       baseGrafNode.y,
@@ -61,6 +86,14 @@ class ASTProcessor {
       baseGrafNode.linkWith(elementNode, LinkType.LEFT_TO_RIGHT),
       elementNode.linkWith(elementNodes[0], LinkType.LEFT_TO_DEEPER_RIGHT)
     )
+
+    if (
+      //baseGrafNode.isRunnable &&
+      !baseGrafNode.execFlags.skip &&
+      baseGrafNode.execFlags.append
+    ) {
+      baseGrafNode.execStep = ++this.currentExecStep
+    }
 
     return baseGrafNode
   }
@@ -115,6 +148,7 @@ class ASTProcessor {
         .sort((a, b) => a.y - b.y)
       // TODO: Not the actual last prop node
       lastPropOfCallVarNode = sortedNodes[sortedNodes.length - 1]
+      this.currentExecStep = --lastPropOfCallVarNode.execStep
     }
 
     const callNode = this.createElementNodes(
@@ -135,20 +169,47 @@ class ASTProcessor {
     )
 
     lastPropOfCallVarNode.operation = new Operation(
-      async function(callee, ...args) {
+      function(callee, ...args) {
+        console.log(`Calling ${callee}.${this.value} with: ${args.map(a => a.toString())}`)
         return callee[this.value].apply(callee, args)
       },
       {
-        result: new Result("Object"),
-        args: astNode.args.map(
-          a => new Argument(a.value || String(a), "Object")
+        result: new Result(
+          this.getArgumentType(lastPropOfCallVarNode),
+          `${lastPropOfCallVarNode.name}Result`
         ),
+        args: this.getArguments(lastPropOfCallVarNode, callNode),
       }
     )
-    lastPropOfCallVarNode.append = true
-    lastPropOfCallVarNode.count = true
+    lastPropOfCallVarNode.execStep = ++this.currentExecStep
+    lastPropOfCallVarNode.execFlags.append = true
+    lastPropOfCallVarNode.execFlags.count = true
 
     return callVarNode
+  }
+
+  getArguments(calleeNode, callNode) {
+    const thisArg = new Argument("thisArg", this.getArgumentType(calleeNode))
+    const args = callNode.nextLogicalNodes.map((node, i) =>
+      new Argument(`_arg${i + 1}`, this.getArgumentType(node))
+    )
+    return [thisArg].concat(args)
+  }
+
+  getArgumentType(node) {
+    let argType
+    switch (node.name) {
+      case "->":
+        argType = "Function"
+        break
+      case "[]":
+        argType = "Array"
+      case "{}":
+      default:
+        argType = "Object"
+        break
+    }
+    return argType
   }
 
   processBlock(astNode, position) {
@@ -206,26 +267,33 @@ class ASTProcessor {
   }
 
   processCode(astNode, position) {
-    const paramNode = this.createElementNodes(
-      astNode,
-      "params",
-      new Node("->", position.x, position.y, position.column)
-    )
     const bodyNode = this.process(astNode.body, {
       x: position.x,
       y: this.getNextNodeYPosition(),
       column: position.column,
     })
+    bodyNode.execFlags.skip = true
+
+    const paramNode = this.createElementNodes(
+      astNode,
+      "params",
+      new Node("->", position.x, position.y, position.column, {
+        operation: new Operation(
+          function() {
+            return (...args) => bodyNode.runCatching(...args)
+          },
+          {
+            result: new Result("Function"),
+          }
+        ),
+        execFlags: {
+          append: true,
+          //count: true,
+        },
+      })
+    )
     this.links.push(paramNode.linkWith(bodyNode, LinkType.BOTTOM_TO_TOP))
 
-    paramNode.operation = new Operation(
-      function() {
-        return async (...args) => bodyNode.runCatching(...args)
-      },
-      {
-        result: new Result("Function"),
-      }
-    )
     return paramNode
   }
 
@@ -241,8 +309,10 @@ class ASTProcessor {
       "args",
       new Node(opAstNode.operator, position.x, position.y, position.column, {
         operation: new Operation(
-          async function(first, second) {
-            return eval(`${first} ${this.name} ${second}`)
+          function(first, second) {
+            const opResult = eval(`${first} ${this.name} ${second}`)
+            console.log(`${first} ${this.name} ${second} = ${opResult}`)
+            return opResult
           },
           {
             result: new Result("Object"),
@@ -253,8 +323,10 @@ class ASTProcessor {
             isAsync: true,
           }
         ),
-        append: true,
-        count: true,
+        execFlags: {
+          append: true,
+          //count: true,
+        },
       })
     )
   }
@@ -273,8 +345,10 @@ class ASTProcessor {
             hasVarArg: true,
           }
         ),
-        append: true,
-        count: true,
+        execFlags: {
+          append: true,
+          count: true,
+        },
       })
     )
   }
@@ -315,6 +389,7 @@ class ASTProcessor {
                 result: new Result("Number", "value"),
               }
             ),
+            execStep: ++this.currentExecStep,
           }
         )
       case "Arr":
@@ -337,6 +412,7 @@ class ASTProcessor {
                 result: new Result("Object", astNode.name.value),
               }
             ),
+            execStep: ++this.currentExecStep,
           }
         )
       case "Code":

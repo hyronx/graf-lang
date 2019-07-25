@@ -5,7 +5,6 @@ import PropTypes from "prop-types"
 import ReportNode from "./report-node"
 import { Position } from "../../services/position"
 
-
 class Node extends React.Component {
   constructor(props) {
     super(props)

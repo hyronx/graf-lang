@@ -9,9 +9,8 @@ module.exports = {
     "strict": 0,
     "no-console": "warn",
     "no-debugger": "warn",
-    "no-unused-vars": [
-      1
-    ],
+    "no-unused-vars": "warn",
+    "no-fallthrough": "warn",
     "react/jsx-filename-extension": [
       1,
       {
