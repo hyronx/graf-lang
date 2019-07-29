@@ -1,12 +1,12 @@
 module.exports = {
-  "parser": "babel-eslint",
-  "env": {
-    "browser": true,
-    "node": true,
-    "es6": true
+  parser: "babel-eslint",
+  env: {
+    browser: true,
+    node: true,
+    es6: true,
   },
-  "rules": {
-    "strict": 0,
+  rules: {
+    strict: 0,
     "no-console": "warn",
     "no-debugger": "warn",
     "no-unused-vars": "warn",
@@ -14,17 +14,20 @@ module.exports = {
     "react/jsx-filename-extension": [
       1,
       {
-        "extensions": [".js", ".jsx"]
-      }
+        extensions: [".js", ".jsx"],
+      },
     ],
-    "prettier/prettier": ["error", {
-     "endOfLine":"auto"
-   }]
+    "prettier/prettier": [
+      "warn",
+      {
+        endOfLine: "auto",
+      },
+    ],
   },
-  "extends": [
+  extends: [
     "eslint:recommended",
     "plugin:react/recommended",
-    "plugin:jsx-a11y/recommended"
+    "plugin:jsx-a11y/recommended",
   ],
-  "plugins": ["prettier", "jsx-a11y"]
+  plugins: ["prettier", "jsx-a11y"],
 }

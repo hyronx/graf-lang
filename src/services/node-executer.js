@@ -77,7 +77,9 @@ class NodeWalker {
       }
       this.current.append = false
     } else {
-      throw new Error("A Node should only be append if there is a node following in the next column")
+      throw new Error(
+        "A Node should only be append if there is a node following in the next column"
+      )
     }
   }
 
@@ -87,8 +89,9 @@ class NodeWalker {
       if (
         this.current.execFlags.skip ||
         this.current.isVisual() ||
-        this.current.isRunnable()
-      ) continue
+        !this.current.isRunnable
+      )
+        continue
 
       const { args: opArgs, hasVarArg } = this.current.operation
 

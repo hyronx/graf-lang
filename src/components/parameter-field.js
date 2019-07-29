@@ -1,56 +1,223 @@
 import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
+import Select from "react-select"
+import getTypes from "../services/types"
+//import styles from "../assets/css/main.css"
 
-const Wrapper = styled.form`
-i.icon {
-  float: right;
-  margin-left: 10px;
-} 
+const backgroundColor = "#21232b"
 
-.graf-param-name {
-  margin-bottom: 10px;
-}
+const Wrapper = styled.div`
+  i {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-align-content: center;
+    align-content: center;
+  }
 
-.graf-param-type {
-  margin-bottom: 10px;
-}
+  .icon-left {
+    float: left;
+    margin-right: 1em;
+  }
 
-.graf-param-desc {
-  margin-bottom: 10px;
-}
+  .icon-right {
+    float: right;
+    margin-left: 10px;
+  }
 
-display: inline-block;
-border-radius: 10px;
-border: 1px solid black;
-padding: 10px;
+  border-radius: 0.8rem;
+  border: 1px solid black;
+  padding: 0.5em 0.5em 0.5em;
 `
 
+const ExtendedWrapper = styled.form`
+  .graf-param-prop input {
+    background-color: ${backgroundColor};
+  }
+
+  .graf-param-name {
+    margin-bottom: 10px;
+  }
+
+  .graf-param-type {
+    margin-bottom: 10px;
+  }
+
+  .graf-param-desc {
+    margin-bottom: 10px;
+  }
+`
+
+const CompactWrapper = styled.div`
+  div.graf-param-prop {
+    padding: 0 0.75rem;
+    background-color: ${backgroundColor};
+    border-radius: 0.25rem;
+    border: 1px solid ${backgroundColor};
+  }
+
+  .graf-param-name {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+
+  .graf-param-type {
+    margin: 0 10px;
+    font-weight: bold;
+    color: gold;
+  }
+
+  .graf-param-desc {
+    margin: 0 10px;
+    font-style: italic;
+  }
+
+  .graf-param-seperator {
+    //padding: 0 0.5rem;
+  }
+
+  display: inline-grid;
+  grid: 2rem / auto auto auto auto auto auto;
+  text-align: center;
+`
+
+export const CompactParameterField = props => (
+  <CompactWrapper className="graf-param-compact">
+    <i className="fas fa-caret-right icon-left" onClick={props.handleExtend} />
+    <div className="graf-param-prop graf-param-name">
+      <p>{props.paramName}</p>
+    </div>
+    <p className="graf-param-seperator">{" : "}</p>
+    <div className="graf-param-prop graf-param-type">
+      <p>{props.paramType}</p>
+    </div>
+    <p className="graf-param-seperator">{" - "}</p>
+    <div className="graf-param-prop graf-param-desc">
+      <p>{props.paramDesc}</p>
+    </div>
+  </CompactWrapper>
+)
+
+CompactParameterField.propTypes = {
+  index: PropTypes.number.isRequired,
+  paramName: PropTypes.string.isRequired,
+  paramType: PropTypes.string.isRequired,
+  paramDesc: PropTypes.string.isRequired,
+  paramValue: PropTypes.string,
+  paramTest: PropTypes.string,
+  handleExtend: PropTypes.func.isRequired,
+}
+
+export const ExtendedParameterField = props => (
+  <ExtendedWrapper
+    className="graf-param-extended"
+    onSubmit={props.handleSubmit}
+  >
+    {props.isEditable ? (
+      <div>
+        <i className="fas fa-times icon-right" onClick={props.handleCancel} />
+        <i className="fas fa-check icon-right" onClick={props.handleSubmit} />
+      </div>
+    ) : (
+      <div>
+        <i className="fas fa-trash-alt icon-right" />
+        <i className="fas fa-edit icon-right" onClick={props.handleEdit} />
+      </div>
+    )}
+
+    <i className="fas fa-caret-down icon-left" onClick={props.handleExtend} />
+    <h3>Parameter {this.props.index + 1}</h3>
+    <div className={"graf-param-prop graf-param-name"}>
+      <label htmlFor={`param-name-${props.index}`}>Parameter Name</label>
+      <input
+        type={"text"}
+        name={`param-name-${props.index}`}
+        id={`param-name-${props.index}`}
+        disabled={!props.isEditable}
+        placeholder={"Name"}
+        maxLength={30}
+        //autoFocus={this.state.isEditable}
+        value={props.paramName}
+        onChange={props.handleParamNameChange}
+      />
+    </div>
+    <div className={"graf-param-prop graf-param-type"}>
+      <label htmlFor={`param-type-${props.index}`}>Parameter Type</label>
+      <Select
+        id={`param-type-${props.index}`}
+        name={`param-type-${props.index}`}
+        isSearchable={true}
+        isClearable={true}
+        isDisabled={!props.isEditable}
+        placeholder="Type"
+        value={props.paramType}
+        onChange={props.handleParamTypeChange}
+        options={ParameterField.types}
+        styles={{
+          input: styles => ({
+            ...styles,
+            backgroundColor,
+          }),
+        }}
+      />
+    </div>
+    <div className={"graf-param-prop graf-param-desc"}>
+      <label htmlFor={`param-desc-${props.index}`}>Parameter Description</label>
+      <input
+        type={"text"}
+        name={`param-desc-${props.index}`}
+        id={`param-desc-${props.index}`}
+        disabled={!props.isEditable}
+        placeholder={"Description"}
+        maxLength={30}
+        value={props.paramDesc}
+        onChange={props.handleParamDescChange}
+      />
+    </div>
+  </ExtendedWrapper>
+)
+
+ExtendedParameterField.propTypes = {
+  index: PropTypes.number.isRequired,
+  paramName: PropTypes.string.isRequired,
+  paramType: PropTypes.string.isRequired,
+  paramDesc: PropTypes.string.isRequired,
+  paramValue: PropTypes.string,
+  paramTest: PropTypes.string,
+  isEditable: PropTypes.bool.isRequired,
+  isExtended: PropTypes.bool.isRequired,
+  handleParamNameChange: PropTypes.func.isRequired,
+  handleParamTypeChange: PropTypes.func.isRequired,
+  handleParamDescChange: PropTypes.func.isRequired,
+  handleEdit: PropTypes.func.isRequired,
+  handleCancel: PropTypes.func.isRequired,
+  handleExtend: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+}
+
 class ParameterField extends React.Component {
+  static types = getTypes().map(t => ({ label: t, value: t }))
+
   constructor(props) {
     super(props)
 
-    this.handleParamNameChange = this.handleParamNameChange.bind(this)
-    this.handleParamTypeChange = this.handleParamTypeChange.bind(this)
-    this.handleParamDescChange = this.handleParamDescChange.bind(this)
-    this.handleEdit = this.handleEdit.bind(this)
-    this.handleCancel = this.handleCancel.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-
     this.state = {
-      paramName: "",
-      paramType: "",
-      paramDesc: "",
+      paramName: this.props.paramName || "",
+      paramType: this.props.paramType || "",
+      paramDesc: this.props.paramDesc || "",
 
       prevParamName: "",
       prevParamType: "",
       prevParamDesc: "",
 
       isEditable: false,
+      isExtended: false,
     }
   }
 
-  handleParamNameChange(event) {
+  handleParamNameChange = event => {
     const { value } = event.target
     this.setState(state => ({
       paramName: value,
@@ -58,15 +225,21 @@ class ParameterField extends React.Component {
     }))
   }
 
-  handleParamTypeChange(event) {
-    const { value } = event.target
-    this.setState(state => ({
-      paramType: value,
-      prevParamType: state.paramType,
-    }))
+  handleParamTypeChange = (value, { action }) => {
+    switch (action) {
+      case "select-option":
+      case "set-value":
+        this.setState(state => ({
+          paramType: value,
+          prevParamType: state.paramType,
+        }))
+        break
+      default:
+        break
+    }
   }
 
-  handleParamDescChange(event) {
+  handleParamDescChange = event => {
     const { value } = event.target
     this.setState(state => ({
       paramDesc: value,
@@ -74,13 +247,13 @@ class ParameterField extends React.Component {
     }))
   }
 
-  handleEdit() {
+  handleEdit = () => {
     this.setState(state => ({
       isEditable: !state.isEditable,
     }))
   }
 
-  handleCancel() {
+  handleCancel = () => {
     this.setState(state => ({
       paramName: state.prevParamName,
       paramType: state.prevParamType,
@@ -89,7 +262,11 @@ class ParameterField extends React.Component {
     }))
   }
 
-  async handleSubmit() {
+  handleExtend = () => {
+    this.setState(state => ({ isExtended: !state.isExtended }))
+  }
+
+  handleSubmit = async () => {
     await this.setState(state => ({
       isEditable: !state.isEditable,
     }))
@@ -101,66 +278,25 @@ class ParameterField extends React.Component {
 
   render() {
     return (
-      <Wrapper className={"graf-param boxed"} onSubmit={this.handleSubmit}>
-        {this.state.isEditable ? (
-          <div>
-            <i className="fas fa-times icon" onClick={this.handleCancel}/>
-            <i className="fas fa-check icon" onClick={this.handleSubmit}/>
-          </div>
+      <Wrapper className="graf-param boxed">
+        {this.state.isExtended ? (
+          <ExtendedParameterField
+            index={this.props.index}
+            handleParamNameChange={this.handleParamNameChange}
+            handleParamTypeChange={this.handleParamTypeChange}
+            handleParamDescChange={this.handleParamDescChange}
+            handleCancel={this.handleCancel}
+            handleEdit={this.handleEdit}
+            handleSubmit={this.handleSubmit}
+            handleExtend={this.handleExtend}
+            {...this.state}
+          />
         ) : (
-          <div>
-            <i className="fas fa-trash-alt icon"/>
-            <i className="fas fa-edit icon" onClick={this.handleEdit}/>
-          </div>
+          <CompactParameterField
+            handleExtend={this.handleExtend}
+            {...this.state}
+          />
         )}
-
-        <h3>Parameter {this.props.index + 1}</h3>
-        <div className={"graf-param-name"}>
-          <label htmlFor={`param-name-${this.props.index}`}>
-            Parameter Name
-          </label>
-          <input
-            type={"text"}
-            name={`param-name-${this.props.index}`}
-            id={`param-name-${this.props.index}`}
-            disabled={!this.state.isEditable}
-            placeholder={"Name"}
-            maxLength={30}
-            autoFocus={this.state.isEditable}
-            value={this.state.paramName}
-            onChange={this.handleParamNameChange}
-          />
-        </div>
-        <div className={"graf-param-type"}>
-          <label htmlFor={`param-type-${this.props.index}`}>
-            Parameter Type
-          </label>
-          <input
-            type={"text"}
-            name={`param-type-${this.props.index}`}
-            id={`param-type-${this.props.index}`}
-            disabled={!this.state.isEditable}
-            placeholder={"Type"}
-            maxLength={30}
-            value={this.state.paramType}
-            onChange={this.handleParamTypeChange}
-          />
-        </div>
-        <div className={"graf-param-desc"}>
-          <label htmlFor={`param-desc-${this.props.index}`}>
-            Parameter Description
-          </label>
-          <input
-            type={"text"}
-            name={`param-desc-${this.props.index}`}
-            id={`param-desc-${this.props.index}`}
-            disabled={!this.state.isEditable}
-            placeholder={"Description"}
-            maxLength={30}
-            value={this.state.paramDesc}
-            onChange={this.handleParamDescChange}
-          />
-        </div>
       </Wrapper>
     )
   }
@@ -168,6 +304,11 @@ class ParameterField extends React.Component {
 
 ParameterField.propTypes = {
   index: PropTypes.number.isRequired,
+  paramName: PropTypes.string,
+  paramType: PropTypes.string,
+  paramDesc: PropTypes.string,
+  paramValue: PropTypes.string,
+  paramTest: PropTypes.string,
   onUpdate: PropTypes.func,
 }
 

@@ -170,7 +170,9 @@ class ASTProcessor {
 
     lastPropOfCallVarNode.operation = new Operation(
       function(callee, ...args) {
-        console.log(`Calling ${callee}.${this.value} with: ${args.map(a => a.toString())}`)
+        console.log(
+          `Calling ${callee}.${this.value} with: ${args.map(a => a.toString())}`
+        )
         return callee[this.value].apply(callee, args)
       },
       {

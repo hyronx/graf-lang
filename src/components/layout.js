@@ -12,9 +12,11 @@ import "../assets/css/main.css"
 import Header from "./header"
 import Sidebar from "./sidebar"
 
-const Layout = ({ children,
-                  outerContainerId="outer-container",
-                  pageWrapId="page-wrap" }) => (
+const Layout = ({
+  children,
+  outerContainerId = "outer-container",
+  pageWrapId = "page-wrap",
+}) => (
   <StaticQuery
     query={graphql`
       query SiteTitleQuery {
