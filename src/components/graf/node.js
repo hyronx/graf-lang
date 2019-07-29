@@ -101,6 +101,8 @@ class Node extends React.Component {
     })
   }
 
+  //getReport(fullHistory)
+
   /**
    * Renders the symbol based on the name
    * @param {boolean} isDragging

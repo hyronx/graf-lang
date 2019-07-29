@@ -15,21 +15,58 @@ const getNow = () => {
 
 export class NodeResult {
   /**
+   * @enum
+   * @type {{TABLE: (NodeResult.Presentation|number), NUMBER: (NodeResult.Presentation|number), TEXT: (NodeResult.Presentation|number), LIST: (NodeResult.Presentation|number)}}
+   */
+  static Presentation = {
+    TABLE: "TABLE",
+    LIST: "LIST",
+    NUMBER: "NUMBER",
+    TEXT: "TEXT",
+  }
+
+  /**
    * Creates a new NodeResult object
    * @param {Node} node - The node which has produced this result
    * @param {*} result - The result data
    * @param {Date} startTime - The start time of the result producing operation
    * @param {Date} endTime - The end time of the result producing operation
+   * @param {string|React.Component|null} presentation - Defines the presentation
    */
-  constructor(node, result, startTime, endTime) {
+  constructor(node, result, startTime, endTime, presentation=null) {
     this.node = node
     this.data = result
     this.startTime = startTime
     this.endTime = endTime
+    this.presentation = presentation ||
+      NodeResult.getDefaultPresentation(this.data)
   }
 
   toString() {
     return `${this.node} from ${this.startTime} til ${this.endTime} returned: ${this.data}`
+  }
+
+  /**
+   * Returns the default presentation option based on the data
+   * @param {*} data
+   * @return {Presentation}
+   */
+  static getDefaultPresentation(data) {
+    if (Array.isArray(data)) {
+      if (data.every(e => Array.isArray(e))) {
+        return this.Presentation.TABLE;
+      } else {
+        return this.Presentation.LIST;
+      }
+    }
+
+    if (Number(data) === data) {
+      return this.Presentation.NUMBER;
+    }
+
+    if (String(data) === data) {
+      return this.Presentation.TEXT;
+    }
   }
 }
 

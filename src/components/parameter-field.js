@@ -26,6 +26,10 @@ const Wrapper = styled.div`
     float: right;
     margin-left: 10px;
   }
+  
+  h3, label, input, p, .graf-type-select {
+    font-size: medium;
+  }
 
   border-radius: 0.8rem;
   border: 1px solid black;
@@ -34,19 +38,12 @@ const Wrapper = styled.div`
 
 const ExtendedWrapper = styled.form`
   .graf-param-prop input {
+    max-height: 2rem;
     background-color: ${backgroundColor};
   }
 
-  .graf-param-name {
-    margin-bottom: 10px;
-  }
-
-  .graf-param-type {
-    margin-bottom: 10px;
-  }
-
-  .graf-param-desc {
-    margin-bottom: 10px;
+  .graf-param-prop {
+    margin-bottom: 1rem;
   }
 `
 
@@ -128,7 +125,7 @@ export const ExtendedParameterField = props => (
     )}
 
     <i className="fas fa-caret-down icon-left" onClick={props.handleExtend} />
-    <h3>Parameter {this.props.index + 1}</h3>
+    <h3>Parameter {props.index + 1}</h3>
     <div className={"graf-param-prop graf-param-name"}>
       <label htmlFor={`param-name-${props.index}`}>Parameter Name</label>
       <input
@@ -156,10 +153,18 @@ export const ExtendedParameterField = props => (
         onChange={props.handleParamTypeChange}
         options={ParameterField.types}
         styles={{
-          input: styles => ({
+          indicatorsContainer: styles => ({
             ...styles,
-            backgroundColor,
+            height: "2rem",
           }),
+          control: styles => ({
+            ...styles,
+            height: "2rem",
+          }),
+          valueContainer: styles => ({
+            ...styles,
+            height: "2rem",
+          })
         }}
       />
     </div>

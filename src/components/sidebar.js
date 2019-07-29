@@ -1,8 +1,10 @@
-import { push as Menu } from "react-burger-menu"
 import React from "react"
 import styled from "styled-components"
+import { push as Menu } from "react-burger-menu"
 import ClassField from "./class-field"
 import { Argument } from "../services/operation"
+import SimpleBar from 'simplebar-react';
+import 'simplebar/dist/simplebar.min.css';
 
 const Wrapper = styled.div`
   /* Individual item */
@@ -19,6 +21,11 @@ const Wrapper = styled.div`
   /* Change color on hover */
   .bm-item:hover {
     color: white;
+  }
+  
+  .bm-menu-wrap {
+    bottom: 0;
+    left: 0;
   }
 
   /* The rest copied directly from react-burger-menu docs */
@@ -69,6 +76,34 @@ const Wrapper = styled.div`
   .bm-overlay {
     background: rgba(0, 0, 0, 0.3);
   }
+  
+  #sidebar-menu {
+    background-color: #F5F5F5;
+    float: left;
+    height: 300px;
+    margin-bottom: 25px;
+    margin-left: 22px;
+    margin-top: 40px;
+    width: 65px;
+    overflow-y: scroll;
+  }
+  
+  #sidebar-menu::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+  }
+  
+  #sidebar-menu::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #D62929;
+  }
+
+  #sidebar-menu::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+  }
 `
 
 class Sidebar extends React.Component {
@@ -78,20 +113,24 @@ class Sidebar extends React.Component {
     this.state = Object.assign({}, this.props)
   }
 
-  showSettings(event) {
-    event.preventDefault()
-  }
-
   render() {
     const { children } = this.props
     return (
       <Wrapper>
-        <Menu {...this.state}>
-          <ClassField
-            index={0}
-            classProps={[new Argument("a", "number", "Exampel")]}
-          />
-        </Menu>
+        <SimpleBar>
+          <Menu {...this.state}>
+            <ClassField
+              index={0}
+              className="Example"
+              classProps={[new Argument("a", "number", "Example")]}
+            />
+            <ClassField
+              index={1}
+              className="Example1"
+              classProps={[new Argument("a", "number", "Example")]}
+            />
+          </Menu>
+        </SimpleBar>
       </Wrapper>
     )
   }

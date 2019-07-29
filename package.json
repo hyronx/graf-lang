@@ -10,6 +10,7 @@
     "@vx/network": "^0.0.189",
     "@vx/shape": "^0.0.189",
     "coffeescript": "^2.4.1",
+    "core-js": "^3.1.4",
     "d3-array": "^2.2.0",
     "d3-ease": "^1.0.5",
     "d3-force": "^2.0.1",
@@ -32,6 +33,7 @@
     "react-helmet": "^5.2.1",
     "react-move": "^6.0.0",
     "react-select": "^3.0.4",
+    "simplebar-react": "^1.1.0",
     "styled-components": "^4.3.1",
     "uuid": "^3.3.2"
   },

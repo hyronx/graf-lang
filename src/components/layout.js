@@ -40,7 +40,7 @@ const Layout = ({
         <Sidebar
           outerContainerId={outerContainerId}
           pageWrapId={pageWrapId}
-          width={400}
+          //width={400}
         />
         <main id={pageWrapId}>{children}</main>
         <footer>

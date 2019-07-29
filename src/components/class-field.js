@@ -27,6 +27,14 @@ const Wrapper = styled.div`
     float: right;
     margin-left: 10px;
   }
+  
+  h3, label, input, p, .graf-type-select {
+    font-size: medium;
+  }
+  
+  .graf-class-props-container {
+    margin: 2rem 0;
+  }
 
   border-radius: 0.8rem;
   border: 1px solid black;
@@ -47,7 +55,7 @@ const CompactWrapper = styled.div`
     color: gold;
   }
 
-  .graf-class-type {
+  .graf-class-supertype {
     margin: 0 10px;
     font-weight: bold;
     color: gold;
@@ -58,60 +66,54 @@ const CompactWrapper = styled.div`
     font-style: italic;
   }
 
-  .graf-class-seperator {
+  .graf-class-separator {
     //padding: 0 0.5rem;
   }
+`
 
+const ExtendedWrapper = styled.form`
+  .graf-class-prop input {
+    max-height: 2rem;
+    background-color: ${backgroundColor};
+  }
+  
+  .graf-class-prop {
+    margin-bottom: 1rem;
+  }
+
+  .graf-class-name {
+    font-weight: bold;
+    color: gold;
+  }
+
+  .graf-class-supertype {
+    font-weight: bold;
+    color: gold;
+  }
+`
+
+const NotationWrapper = styled.div`
   display: inline-grid;
   grid: 2rem / auto auto auto auto auto auto;
   text-align: center;
 `
 
-const ExtendedWrapper = styled.form`
-  .graf-class-prop input {
-    background-color: ${backgroundColor};
-  }
-
-  .graf-class-name {
-    margin-bottom: 10px;
-  }
-
-  .graf-class-type {
-    margin-bottom: 10px;
-  }
-
-  .graf-class-desc {
-    margin-bottom: 10px;
-  }
-`
-
-const CompactClassNotation = props => (
-  <>
-    <div className="graf-class-prop graf-class-name">
-      <p>{props.className}</p>
-    </div>
-    <p className="graf-class-seperator">{" < "}</p>
-    <div className="graf-class-prop graf-class-supertype">
-      <p>{props.classSuperType}</p>
-    </div>
-    <p className="graf-class-seperator">{" - "}</p>
-    <div className="graf-class-prop graf-class-desc">
-      <p>{props.classDesc}</p>
-    </div>
-  </>
-)
-
-CompactClassNotation.propTypes = {
-  className: PropTypes.string.isRequired,
-  classSuperType: PropTypes.string.isRequired,
-  classDesc: PropTypes.string.isRequired,
-}
-
 export const CompactClassField = props => (
   <CompactWrapper className="graf-class-compact">
     <i className="fas fa-caret-right icon-left" onClick={props.handleExtend} />
-    <CompactClassNotation {...props} />
-    {props.children}
+    <NotationWrapper>
+      <div className="graf-class-prop graf-class-name">
+        <p>{props.className}</p>
+      </div>
+      <p className="graf-class-separator">{" < "}</p>
+      <div className="graf-class-prop graf-class-supertype">
+        <p>{props.classSuperType}</p>
+      </div>
+      <p className="graf-class-separator">{" - "}</p>
+      <div className="graf-class-prop graf-class-desc">
+        <p>{props.classDesc}</p>
+      </div>
+    </NotationWrapper>
   </CompactWrapper>
 )
 
@@ -120,10 +122,6 @@ CompactClassField.propTypes = {
   classSuperType: PropTypes.string.isRequired,
   classDesc: PropTypes.string.isRequired,
   handleExtend: PropTypes.func.isRequired,
-  children: PropTypes.oneOf([
-    PropTypes.node,
-    PropTypes.arrayOf(PropTypes.node),
-  ]),
 }
 
 export const ExtendedClassField = props => (
@@ -143,10 +141,20 @@ export const ExtendedClassField = props => (
       </div>
     )}
 
-    <i className="fas fa-caret-down icon-left" onClick={props.handleExtend} />
-    <CompactClassNotation {...props} />
+    <CompactWrapper className="graf-class-compact">
+      <i className="fas fa-caret-down icon-left" onClick={props.handleExtend} />
+      <NotationWrapper>
+        <div className="graf-class-name">
+          <p>{props.className}</p>
+        </div>
+        <p className="graf-class-separator">{" < "}</p>
+        <div className="graf-class-supertype">
+          <p>{props.classSuperType}</p>
+        </div>
+      </NotationWrapper>
+    </CompactWrapper>
     <div className={"graf-class-prop graf-class-name"}>
-      <label htmlFor={`class-name-${props.index}`}>Parameter Name</label>
+      <label htmlFor={`class-name-${props.index}`}>Class Name</label>
       <input
         type={"text"}
         name={`class-name-${props.index}`}
@@ -160,10 +168,11 @@ export const ExtendedClassField = props => (
       />
     </div>
     <div className={"graf-class-prop graf-class-type"}>
-      <label htmlFor={`class-type-${props.index}`}>Parameter Type</label>
+      <label htmlFor={`class-type-${props.index}`}>Class Supertype</label>
       <Select
         id={`class-type-${props.index}`}
         name={`class-type-${props.index}`}
+        className="graf-type-select"
         isSearchable={true}
         isClearable={true}
         isDisabled={!props.isEditable}
@@ -172,15 +181,23 @@ export const ExtendedClassField = props => (
         onChange={props.handleSuperTypeChange}
         options={ClassField.types}
         styles={{
-          input: styles => ({
+          indicatorsContainer: styles => ({
             ...styles,
-            backgroundColor,
+            height: "2rem",
           }),
+          control: styles => ({
+            ...styles,
+            height: "2rem",
+          }),
+          valueContainer: styles => ({
+            ...styles,
+            height: "2rem",
+          })
         }}
       />
     </div>
     <div className={"graf-class-prop graf-class-desc"}>
-      <label htmlFor={`class-desc-${props.index}`}>Parameter Description</label>
+      <label htmlFor={`class-desc-${props.index}`}>Class Description</label>
       <input
         type={"text"}
         name={`class-desc-${props.index}`}
@@ -218,6 +235,15 @@ ExtendedClassField.propTypes = {
   ]),
 }
 
+const PropertiesContainer = ({ index, props }) => (
+  <div className="graf-class-prop graf-class-properties">
+    <label htmlFor={`graf-class-props-container-${index}`}>Class Properties</label>
+    <div id={`graf-class-props-container-${index}`} className="graf-class-props-container">
+      {props}
+    </div>
+  </div>
+)
+
 class ClassField extends React.Component {
   static types = getTypes().map(t => ({ label: t, value: t }))
 
@@ -246,7 +272,7 @@ class ClassField extends React.Component {
     }))
   }
 
-  handleSuperTypeChange = (value, { action }) => {
+  handleSuperTypeChange = ({ value }, { action }) => {
     switch (action) {
       case "select-option":
       case "set-value":
@@ -298,13 +324,16 @@ class ClassField extends React.Component {
         paramDesc={prop.description}
       />
     ))
+    const propsContainer = (
+      <PropertiesContainer index={this.props.index} props={props} />
+    )
     return (
       <Wrapper className="graf-class boxed">
         {this.state.isExtended ? (
           <ExtendedClassField
             index={this.props.index}
             handleNameChange={this.handleNameChange}
-            handleTypeChange={this.handleTypeChange}
+            handleSuperTypeChange={this.handleSuperTypeChange}
             handleDescChange={this.handleDescChange}
             handleCancel={this.handleCancel}
             handleEdit={this.handleEdit}
@@ -312,11 +341,11 @@ class ClassField extends React.Component {
             handleExtend={this.handleExtend}
             {...this.state}
           >
-            {props}
+            {propsContainer}
           </ExtendedClassField>
         ) : (
           <CompactClassField handleExtend={this.handleExtend} {...this.state}>
-            {props}
+            {propsContainer}
           </CompactClassField>
         )}
       </Wrapper>
