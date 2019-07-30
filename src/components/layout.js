@@ -8,6 +8,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 import { StaticQuery, graphql } from "gatsby"
+import { Grid, Row, Col } from "react-flexbox-grid"
 import "../assets/css/main.css"
 import Header from "./header"
 import Sidebar from "./sidebar"
@@ -37,12 +38,16 @@ const Layout = ({
         }}
       >
         <Header siteTitle={data.site.siteMetadata.title} />
-        <Sidebar
-          outerContainerId={outerContainerId}
-          pageWrapId={pageWrapId}
-          //width={400}
-        />
-        <main id={pageWrapId}>{children}</main>
+        <Grid fluid>
+          <Row>
+            <Col xs={6} md={4} lg={3}>
+              <Sidebar />
+            </Col>
+            <Col xs={6} md={8} lg={9}>
+              <main id={pageWrapId}>{children}</main>
+            </Col>
+          </Row>
+        </Grid>
         <footer>
           © {new Date().getFullYear()}, Built with
           {` `}
