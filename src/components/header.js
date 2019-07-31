@@ -1,11 +1,12 @@
 import { Link } from "gatsby"
 import PropTypes from "prop-types"
 import React from "react"
+import theme from "../../config/theme"
 
 const Header = ({ siteTitle }) => (
   <header
     style={{
-      background: `rebeccapurple`,
+      background: theme.colors.dark.default.background,
       marginBottom: `1.45rem`,
     }}
   >

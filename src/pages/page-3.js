@@ -2,16 +2,20 @@ import React from "react"
 import PropTypes from "prop-types"
 import { Link } from "gatsby"
 import styled from "styled-components"
+import Modal from "react-modal"
 import { max } from "d3-array"
+import { Row, Col } from "react-flexbox-grid"
 import Layout from "../components/layout"
+import ClassField from "../components/class-field"
 import SEO from "../components/seo"
 import CoffeeScript from "coffeescript"
 import Graph from "../components/graf"
 import ASTProcessor from "../services/ast-processor"
 import CodeInput from "../components/code-input"
 import executeNodesAsync from "../services/node-executer"
+import theme from "../../config/theme"
 
-const Wrapper = styled.div`
+const EditorWrapper = styled.div`
   .terminal-base {
     min-height: 200px;
     max-height: 200px;
@@ -19,6 +23,23 @@ const Wrapper = styled.div`
 
   height: 200px;
 `
+
+const modalStyles = {
+  overlay: {
+    backgroundColor: theme.colors.dark.overlay.background,
+  },
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    width: "300px",
+    height: "500px",
+    backgroundColor: theme.colors.dark.default.paper,
+  },
+}
 
 class ThirdPage extends React.Component {
   constructor(props) {
@@ -36,11 +57,8 @@ class ThirdPage extends React.Component {
       links: [],
       height: this.props.height,
       width: this.props.width,
+      isModalOpen: false,
     }
-  }
-
-  componentDidUpdate() {
-    console.log(this.state)
   }
 
   async addNodes(newNodes) {
@@ -88,11 +106,24 @@ class ThirdPage extends React.Component {
     })
   }
 
+  handleCloseModal = () => this.setState({ isModalOpen: false })
+
   render() {
     return (
       <Layout
         outerContainerId={this.outerContainerId}
         pageWrapId={this.pageWrapId}
+        modals={[
+          <Modal
+            key={`modal-0`}
+            isOpen={this.state.isModalOpen}
+            onRequestClose={this.handleCloseModal}
+            style={modalStyles}
+          >
+            <ClassField isExpanded={true} isEditable={true} isBoxed={true} />
+          </Modal>,
+        ]}
+        onAddElement={type => this.setState({ isModalOpen: true })}
       >
         <SEO title="Page three" />
         <Graph
@@ -103,18 +134,22 @@ class ThirdPage extends React.Component {
             links: this.state.links,
           }}
         />
-        <Wrapper>
-          <CodeInput
-            onChange={text => {
-              this.astProcessor.reset()
-              try {
-                this.addNodes(CoffeeScript.nodes(text)).finally()
-              } catch (e) {
-                console.error(e)
-              }
-            }}
-          />
-        </Wrapper>
+        <Row>
+          <EditorWrapper>
+            <CodeInput
+              height={100}
+              width={this.state.width}
+              onChange={text => {
+                this.astProcessor.reset()
+                try {
+                  this.addNodes(CoffeeScript.nodes(text)).finally()
+                } catch (e) {
+                  console.error(e)
+                }
+              }}
+            />
+          </EditorWrapper>
+        </Row>
         <button type={"button"} id={"reset-button"} onClick={this.reset}>
           Reset
         </button>

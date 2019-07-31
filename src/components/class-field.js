@@ -8,8 +8,9 @@ import {
   CompactField,
   ExtendedField,
 } from "./field"
+import theme from "../../config/theme"
 
-const backgroundColor = "#21232b"
+const backgroundColor = theme.colors.dark.default.paper
 
 const CompactWrapper = styled.div`
   div.graf-class-prop {
@@ -79,7 +80,7 @@ class ClassField extends React.Component {
       classProps: this.props.classProps || [],
       classMethods: this.props.classMethods || [],
 
-      isEditable: false,
+      isEditable: this.props.isEditable,
       isExpanded: this.props.isExpanded,
     }
   }
@@ -121,19 +122,25 @@ class ClassField extends React.Component {
     )
   }
 
-  handleSubmit = async () => {
-    await this.setState(state => ({
-      isEditable: !state.isEditable,
-    }))
-    if (this.props.onUpdate) {
-      const { className, classType, classDesc } = this.state
-      this.props.onUpdate(className, classType, classDesc)
-    }
+  handleSubmit = () => {
+    this.setState(
+      state => ({
+        isEditable: !state.isEditable,
+      }),
+      this.props.onUpdate
+        ? () => {
+            const { className, classType, classDesc } = this.state
+            this.props.onUpdate(className, classType, classDesc)
+          }
+        : undefined
+    )
   }
 
   render() {
     return (
-      <FieldWrapper className="graf-class boxed">
+      <FieldWrapper
+        className={`graf-class active ${this.props.isBoxed ? "boxed" : ""}`}
+      >
         {this.props.isExpanded ? (
           <ExtendedField
             index={this.props.index}
@@ -194,13 +201,17 @@ ClassField.propTypes = {
   className: PropTypes.string,
   classSuperType: PropTypes.string,
   classDesc: PropTypes.string,
+  isEditable: PropTypes.bool,
   isExpanded: PropTypes.bool,
+  isBoxed: PropTypes.bool,
   onExpand: PropTypes.func,
   onUpdate: PropTypes.func,
 }
 
 ClassField.defaultProps = {
+  isEditable: false,
   isExpanded: false,
+  isBoxed: false,
 }
 
 export default ClassField

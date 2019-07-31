@@ -2,8 +2,9 @@ import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
 import { FieldWrapper, CompactField, ExtendedField } from "./field"
+import theme from "../../config/theme"
 
-const backgroundColor = "#21232b"
+const backgroundColor = theme.colors.dark.default.paper
 
 const ExtendedWrapper = styled.form`
   .graf-param-prop input {

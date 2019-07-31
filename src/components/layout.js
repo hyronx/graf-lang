@@ -15,8 +15,10 @@ import Sidebar from "./sidebar"
 
 const Layout = ({
   children,
-  outerContainerId = "outer-container",
-  pageWrapId = "page-wrap",
+  outerContainerId,
+  pageWrapId,
+  modals,
+  onAddElement,
 }) => (
   <StaticQuery
     query={graphql`
@@ -37,18 +39,19 @@ const Layout = ({
           padding: "0 1.0875rem 1.45rem 0",
         }}
       >
-        <Header siteTitle={data.site.siteMetadata.title} />
+        <Header id="header" siteTitle={data.site.siteMetadata.title} />
         <Grid fluid>
           <Row>
             <Col xs={6} md={4} lg={3}>
-              <Sidebar />
+              <Sidebar onAddElement={onAddElement} />
             </Col>
             <Col xs={6} md={8} lg={9}>
               <main id={pageWrapId}>{children}</main>
             </Col>
           </Row>
         </Grid>
-        <footer>
+        {modals}
+        <footer id="footer">
           © {new Date().getFullYear()}, Built with
           {` `}
           <a href="https://www.gatsbyjs.org">Gatsby</a>
@@ -59,7 +62,18 @@ const Layout = ({
 )
 
 Layout.propTypes = {
+  outerContainerId: PropTypes.string.isRequired,
+  pageWrapId: PropTypes.string.isRequired,
+  onAddElement: PropTypes.func,
+  modals: PropTypes.element,
   children: PropTypes.node.isRequired,
+}
+
+Layout.defaultProps = {
+  outerContainerId: "outer-container",
+  pageWrapId: "main",
+  modals: [],
+  onAddElement: type => console.log(`Add new ${type}`),
 }
 
 export default Layout

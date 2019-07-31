@@ -3,6 +3,36 @@ import PropTypes from "prop-types"
 import styled from "styled-components"
 import Select from "react-select"
 import getTypes from "../services/types"
+import theme from "../../config/theme"
+
+const backgroundColor = theme.colors.dark.default.paper
+
+const selectStyles = {
+  indicatorsContainer: styles => ({
+    ...styles,
+    height: "2rem",
+    backgroundColor,
+  }),
+  control: styles => ({
+    ...styles,
+    height: "2rem",
+    backgroundColor,
+  }),
+  valueContainer: styles => ({
+    ...styles,
+    height: "2rem",
+    backgroundColor,
+    color: "gold",
+  }),
+  menuList: styles => ({
+    ...styles,
+    backgroundColor,
+  }),
+  option: styles => ({
+    ...styles,
+    color: "white",
+  }),
+}
 
 export const FieldWrapper = styled.div`
   i {
@@ -43,8 +73,6 @@ export const FieldWrapper = styled.div`
   */
 `
 
-const backgroundColor = "#21232b"
-
 export const ExtendedField = props => {
   const standardChildren = [
     {
@@ -70,32 +98,7 @@ export const ExtendedField = props => {
         value={{ label: props.type, value: props.type }}
         onChange={(...args) => props.handleChange("type", ...args)}
         options={getTypes().map(t => ({ label: t, value: t }))}
-        styles={{
-          indicatorsContainer: styles => ({
-            ...styles,
-            height: "2rem",
-            backgroundColor,
-          }),
-          control: styles => ({
-            ...styles,
-            height: "2rem",
-            backgroundColor,
-          }),
-          valueContainer: styles => ({
-            ...styles,
-            height: "2rem",
-            backgroundColor,
-            color: "gold",
-          }),
-          menuList: styles => ({
-            ...styles,
-            backgroundColor,
-          }),
-          option: styles => ({
-            ...styles,
-            color: "white",
-          }),
-        }}
+        styles={selectStyles}
       />
     </div>,
     {

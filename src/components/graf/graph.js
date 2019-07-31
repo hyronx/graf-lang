@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import styled from "styled-components"
 import { Animate } from "react-move"
 import { easeExpOut } from "d3-ease"
+import theme from "../../../config/theme"
 import Node from "./node"
 import Link from "./link"
 
@@ -105,8 +106,8 @@ class Graph extends React.Component {
         <rect
           width={width}
           height={height}
-          rx={14}
-          fill="#272b4d"
+          rx={15}
+          fill={theme.colors.dark.board.background}
           onDoubleClick={event =>
             this.addNode({
               x: event.clientX,

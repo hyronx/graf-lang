@@ -1,5 +1,10 @@
 import React from "react"
-import TextArea from "react-expanding-textarea"
+import PropTypes from "prop-types"
+//import TextArea from "react-expanding-textarea"
+import brace from "brace"
+import AceEditor from "react-ace"
+import "brace/mode/coffee"
+import "brace/theme/github"
 
 class CodeInput extends React.Component {
   constructor(props) {
@@ -8,32 +13,42 @@ class CodeInput extends React.Component {
     this.handleChange = this.handleChange.bind(this)
 
     this.state = {
-      text: null,
+      text: "",
+      timeout: null,
     }
   }
 
-  handleChange(event) {
-    event.preventDefault()
-    const text = event.target.value
-    this.setState(({ text: prevText }) => {
-      if (prevText !== text) {
-        this.props.onChange(text)
-        return { text }
-      }
+  handleChange(text) {
+    this.setState({ text }, () => {
+      clearTimeout(this.state.timeout)
+      this.setState({
+        timeout: setTimeout(() => {
+          this.props.onChange(text)
+        }, 1000),
+      })
     })
   }
 
   render() {
     return (
-      <TextArea
-        maxLength="3000"
-        className="textarea"
-        name="code"
-        placeholder="CoffeeScript"
+      <AceEditor
+        mode="coffee"
+        theme="github"
+        height={this.props.height}
+        width={this.props.width}
         onChange={this.handleChange}
+        value={this.state.text}
+        name="code-editor"
+        editorProps={{ $blockScrolling: true }}
       />
     )
   }
+}
+
+CodeInput.propTypes = {
+  height: PropTypes.oneOf(PropTypes.number, PropTypes.string).isRequired,
+  width: PropTypes.oneOf(PropTypes.number, PropTypes.string).isRequired,
+  onChange: PropTypes.func.isRequired,
 }
 
 export default CodeInput
