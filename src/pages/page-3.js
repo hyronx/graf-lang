@@ -85,8 +85,8 @@ class ThirdPage extends React.Component {
     return new Promise(resolve =>
       this.setState(
         {
-          height: max(this.astProcessor.nodes.map(n => n.y)) + 200,
-          width: max(this.astProcessor.nodes.map(n => n.x)) + 200,
+          height: max(this.astProcessor.nodes.map(n => n.y).concat([this.props.height])) + 200,
+          width: max(this.astProcessor.nodes.map(n => n.x).concat([this.props.width])) + 200,
           nodes: this.astProcessor.nodes,
           links: this.astProcessor.links,
         },
