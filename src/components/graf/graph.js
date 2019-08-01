@@ -2,7 +2,7 @@ import React from "react"
 import { Group } from "@vx/group"
 import PropTypes from "prop-types"
 import styled from "styled-components"
-import { Animate } from "react-move"
+import posed from "react-pose"
 import { easeExpOut } from "d3-ease"
 import theme from "../../../config/theme"
 import Node from "./node"
@@ -65,6 +65,13 @@ class Graph extends React.Component {
       onAddNode,
     } = this.props
     const columns = this.getColumns()
+    const Spark = posed.circle({
+      hide: { opacity: 0 },
+      showAndMove: {
+        x: !this.isEmpty ? this.lastNode.nextNodes[0].leftCenter.x : 0,
+        opacity: 1
+      },
+    })
     return (
       <Wrapper width={width} height={height}>
         <rect
@@ -130,30 +137,13 @@ class Graph extends React.Component {
             ))}
           </Group>
         </Group>
-        <Animate
-          start={() => ({
-            x: 0,
-            y: !this.isEmpty ? this.lastNode.y : 0,
-          })}
-          update={() => ({
-            x: !this.isEmpty ? this.lastNode.nextNodes[0].x : 0,
-            y: !this.isEmpty ? this.lastNode.y : 0,
-            timing: {
-              duration: 5000,
-              ease: easeExpOut,
-            },
-          })}
-        >
-          {({ x, y }) => (
-            <circle
-              cx={0}
-              cy={y + 25}
-              r={10}
-              fill={theme.colors.dark.board.sparks}
-              transform={`translate(${x}, 0)`}
-            />
-          )}
-        </Animate>
+        <Spark
+          pose={this.isEmpty ? "hide" : "showAndMove"}
+          cx={!this.isEmpty ? this.lastNode.rightCenter.x : 0}
+          cy={!this.isEmpty ? this.lastNode.rightCenter.y : 0}
+          r={8}
+          fill={theme.colors.dark.board.sparks}
+        />
       </Wrapper>
     )
   }
