@@ -2,18 +2,17 @@ import styled from "styled-components"
 import React from "react"
 import { LinkHorizontal } from "@vx/shape"
 import { Group } from "@vx/group"
-import { LinkType } from "../../services/link"
+import { LinkType } from "graf-core"
 
 const ConnectingLine = styled.line`
-  strokeWidth: 2;
+  strokewidth: 2;
   stroke: #999;
-  strokeOpacity: 0.6;
+  strokeopacity: 0.6;
 `
 
 class Link extends React.Component {
   constructor(props) {
     super(props)
-
 
     this.state = {
       x1: this.props.link.source.x,

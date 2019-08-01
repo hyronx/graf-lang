@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
 import Select from "react-select"
-import getTypes from "../services/types"
+import { getTypes } from "graf-core"
 import theme from "../../config/theme"
 
 const backgroundColor = theme.colors.dark.default.paper

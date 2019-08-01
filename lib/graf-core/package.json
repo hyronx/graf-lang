@@ -1,0 +1,25 @@
+{
+  "name": "graf-core",
+  "version": "0.1.0",
+  "description": "Core library for Graf",
+  "main": "src/index.js",
+  "repository": "https://github.com/hyronx/graf-core",
+  "author": "Fabian Loewe",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "d3-array": "^2.2.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-flow": "^7.0.0",
+    "babel-jest": "^24.8.0",
+    "coffeescript": "^2.4.1",
+    "jest": "^24.8.0"
+  }
+}

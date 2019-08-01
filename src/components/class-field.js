@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
-import getTypes from "../services/types"
+import { getTypes } from "graf-core"
 import {
   FieldWrapper,
   NotationWrapper,

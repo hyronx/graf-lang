@@ -22,60 +22,23 @@ const Wrapper = styled.svg`
 const columnWidth = 300
 
 class Graph extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.onDragMoveNode = this.onDragMoveNode.bind(this)
-
-    this.wrapper = React.createRef()
-
-    this.state = {
-      nodesOnDragEnd: [],
-      ...this.props.data,
-    }
-  }
-
-  addNode(node) {
-    this.setState(state => ({
-      nodes: [...state.nodes, node],
-    }))
-  }
-
-  updateNode(node) {
-    this.setState(state => ({
-      nodes: state.nodes.map(n => (n.name === node.name ? node : n)),
-    }))
-  }
-
-  addLink(link) {
-    this.setState(state => ({
-      links: [...state.links, link],
-    }))
-  }
-
-  addNodeOnDragEnd(onDragEnd) {
-    this.setState(state => ({
-      nodesOnDragEnd: [...state.nodesOnDragEnd, onDragEnd],
-    }))
-  }
-
   getColumns() {
-    return this.state.nodes
+    return this.props.data.nodes
       .map(({ column }) => column)
       .filter((value, index, self) => self.indexOf(value) === index)
   }
 
-  onDragMoveNode(node) {
+  onDragMoveNode = node => {
     return dx => {
       const movedXPos = node.x + dx
       if (movedXPos > (node.column + 1) * columnWidth) {
-        this.updateNode(
+        this.props.onUpdateNode(
           Object.assign({}, node, {
             column: node.column + 1,
           })
         )
       } else if (movedXPos < node.column * columnWidth) {
-        this.updateNode(
+        this.props.onUpdateNode(
           Object.assign({}, node, {
             column: node.column - 1,
           })
@@ -84,32 +47,33 @@ class Graph extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps !== this.props) {
-      this.setState(() => this.props.data)
-    }
+  get isEmpty() {
+    return (
+      this.props.data.nodes.length === 0 && this.props.data.links.length === 0
+    )
   }
 
-  isEmpty = () => {
-    return this.state.nodes.length === 0 && this.state.links.length === 0
-  }
-
-  lastNode = () => {
-    return this.state.nodes[this.state.nodes.length - 1]
+  get lastNode() {
+    return this.props.data.nodes[this.props.data.nodes.length - 1]
   }
 
   render() {
-    const { width, height } = this.props
+    const {
+      width,
+      height,
+      data: { nodes, links },
+      onAddNode,
+    } = this.props
     const columns = this.getColumns()
     return (
-      <Wrapper ref={this.wrapper} width={width} height={height}>
+      <Wrapper width={width} height={height}>
         <rect
           width={width}
           height={height}
           rx={15}
           fill={theme.colors.dark.board.background}
           onDoubleClick={event =>
-            this.addNode({
+            onAddNode({
               x: event.clientX,
               y: event.clientY,
               name: "AA",
@@ -117,7 +81,7 @@ class Graph extends React.Component {
           }
           onKeyDown={event => {
             if (event.keyCode === 13) {
-              this.addNode({
+              onAddNode({
                 x: Math.random() * width,
                 y: Math.random() * height,
                 name: Math.random() * 10 * "A",
@@ -141,7 +105,7 @@ class Graph extends React.Component {
         </Group>
         <Group className="vx-network">
           <Group className="vx-network-links">
-            {this.state.links.map((link, i) => (
+            {links.map((link, i) => (
               <Group
                 key={`vx-network-link-${i}`}
                 className="vx-network-link"
@@ -153,14 +117,14 @@ class Graph extends React.Component {
           </Group>
 
           <Group className="vx-network-nodes">
-            {this.state.nodes.map((node, i) => (
+            {nodes.map((node, i) => (
               <Node
                 key={`vx-network-node-${i}`}
                 dragWidth={(node.column + 1) * columnWidth}
                 dragHeight={height}
                 radius={25}
                 node={node}
-                links={this.state.links}
+                links={links}
                 onDragMove={this.onDragMoveNode(node)}
               />
             ))}
@@ -169,10 +133,11 @@ class Graph extends React.Component {
         <Animate
           start={() => ({
             x: 0,
-            y: !this.isEmpty() ? this.lastNode().y : 0,
+            y: !this.isEmpty ? this.lastNode.y : 0,
           })}
           update={() => ({
-            x: !this.isEmpty() ? this.lastNode().nextNodes[0].x : 0,
+            x: !this.isEmpty ? this.lastNode.nextNodes[0].x : 0,
+            y: !this.isEmpty ? this.lastNode.y : 0,
             timing: {
               duration: 5000,
               ease: easeExpOut,
@@ -182,9 +147,9 @@ class Graph extends React.Component {
           {({ x, y }) => (
             <circle
               cx={0}
-              cy={y}
+              cy={y + 25}
               r={10}
-              fill="black"
+              fill={theme.colors.dark.board.sparks}
               transform={`translate(${x}, 0)`}
             />
           )}
@@ -201,6 +166,13 @@ Graph.propTypes = {
     links: PropTypes.array.isRequired,
     nodes: PropTypes.array.isRequired,
   }).isRequired,
+  onAddNode: PropTypes.func.isRequired,
+  onUpdateNode: PropTypes.func.isRequired,
+}
+
+Graph.defaultProps = {
+  onAddNode: () => {},
+  onUpdateNode: () => {},
 }
 
 export default Graph

@@ -10,9 +10,8 @@ import ClassField from "../components/class-field"
 import SEO from "../components/seo"
 import CoffeeScript from "coffeescript"
 import Graph from "../components/graf"
-import ASTProcessor from "../services/ast-processor"
 import CodeInput from "../components/code-input"
-import executeNodesAsync from "../services/node-executer"
+import { executeNodesAsync, ASTProcessor } from "graf-core"
 import theme from "../../config/theme"
 
 const EditorWrapper = styled.div`

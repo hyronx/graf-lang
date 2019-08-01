@@ -2,8 +2,8 @@ import React from "react"
 import { Drag } from "@vx/drag"
 import { Group } from "@vx/group"
 import PropTypes from "prop-types"
+import { Position } from "graf-core"
 import ReportNode from "./report-node"
-import { Position } from "../../services/position"
 
 class Node extends React.Component {
   constructor(props) {
@@ -28,8 +28,8 @@ class Node extends React.Component {
   afterClickDragMove({ dx, dy }) {
     const { node, onDragMove, links } = this.props
 
-    const nodeAsSourceLinks = links.filter(({ source }) =>
-      node.id === source.id
+    const nodeAsSourceLinks = links.filter(
+      ({ source }) => node.id === source.id
     )
     for (let link of nodeAsSourceLinks) {
       // TODO: use clone
@@ -42,8 +42,8 @@ class Node extends React.Component {
       })
     }
 
-    const nodeAsTargetLinks = links.filter(({ target }) =>
-      node.id === target.id
+    const nodeAsTargetLinks = links.filter(
+      ({ target }) => node.id === target.id
     )
     for (let link of nodeAsTargetLinks) {
       link.component.update({
@@ -59,12 +59,10 @@ class Node extends React.Component {
   }
 
   async handleNodeRunning() {
-    await new Promise(resolve =>
-      setTimeout(resolve, this.state.glowTime)
-    )
+    await new Promise(resolve => setTimeout(resolve, this.state.glowTime))
     return this.setState(({ glow, glowTime }) => ({
       glow: !glow,
-      glowTime: glowTime + (glow ? -1000 : 1000)
+      glowTime: glowTime + (glow ? -1000 : 1000),
     }))
   }
 
@@ -76,7 +74,8 @@ class Node extends React.Component {
           node.run()
         }
 
-        const fullHistory = node.resultHistory.concat(node.errorHistory)
+        const fullHistory = node.resultHistory
+          .concat(node.errorHistory)
           .sort((a, b) => a.startTime - b.startTime)
 
         return {
@@ -88,12 +87,9 @@ class Node extends React.Component {
               textAnchor={"left"}
               style={{ fill: "gold" }}
             >
-              {fullHistory.length > 0
-                ? fullHistory[0].data
-                : null
-              }
+              {fullHistory.length > 0 ? fullHistory[0].data : null}
             </text>
-          )
+          ),
         }
       } else {
         return { hideReport: true }
@@ -115,10 +111,7 @@ class Node extends React.Component {
     switch (node.name) {
       case "·":
         return (
-          <Group
-            key={`node-${node.id}`}
-            className={`node-${node.name}`}
-          >
+          <Group key={`node-${node.id}`} className={`node-${node.name}`}>
             <circle
               className={`symbol-${node.name}`}
               cx={dx + 50}
@@ -136,11 +129,9 @@ class Node extends React.Component {
             key={`node-${node.id}`}
             className={`node-${node.name}`}
             onClick={() =>
-              this.handleResultNodeClick(new Position(
-                dx + 100,
-                dy,
-                node.column
-              ))
+              this.handleResultNodeClick(
+                new Position(dx + 100, dy, node.column)
+              )
             }
           >
             <ReportNode x={dx} y={dy} />
@@ -162,10 +153,7 @@ class Node extends React.Component {
         )
       default:
         return (
-          <Group
-            key={`node-${node.id}`}
-            className={`node-${node.name}`}
-          >
+          <Group key={`node-${node.id}`} className={`node-${node.name}`}>
             <rect
               className={`symbol-${node.name}`}
               x={dx}
@@ -216,15 +204,16 @@ class Node extends React.Component {
             >
               {this.renderSymbol(isDragging, dx, dy, node)}
               {children &&
-                children.forEach(c => c({
-                  dragStart,
-                  dragEnd,
-                  dragMove,
-                  isDragging,
-                  dx,
-                  dy,
-                }))
-              }
+                children.forEach(c =>
+                  c({
+                    dragStart,
+                    dragEnd,
+                    dragMove,
+                    isDragging,
+                    dx,
+                    dy,
+                  })
+                )}
             </Group>
           )
         }}

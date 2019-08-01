@@ -3,8 +3,10 @@ import PropTypes from "prop-types"
 //import TextArea from "react-expanding-textarea"
 import brace from "brace"
 import AceEditor from "react-ace"
-import "brace/mode/coffee"
-import "brace/theme/github"
+import theme from "../../config/theme"
+
+import("brace/mode/coffee")
+import(`brace/theme/${theme.codeInput.dark.theme}`)
 
 class CodeInput extends React.Component {
   constructor(props) {
@@ -33,7 +35,7 @@ class CodeInput extends React.Component {
     return (
       <AceEditor
         mode="coffee"
-        theme="github"
+        theme="chaos"
         height={this.props.height}
         width={this.props.width}
         onChange={this.handleChange}
