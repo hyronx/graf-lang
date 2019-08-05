@@ -9,11 +9,11 @@ const getBrowserLangKey = () => {
   return browserLang
 }
 
-export const localeInitalState = {
+export const localeInitialState = {
   langKey: getBrowserLangKey() || "en",
 }
 
-export function locale(state = localeInitalState, action) {
+export function locale(state = localeInitialState, action) {
   switch (action.type) {
     case "SET_LANG":
       return {

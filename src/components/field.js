@@ -102,7 +102,7 @@ export const ExtendedField = props => {
       />
     </div>,
     {
-      name: "desc",
+      name: "description",
       label: `${props.prefix.toUpperCase()} Description`,
       placeholder: "Description",
     },
@@ -163,7 +163,7 @@ ExtendedField.propTypes = {
   name: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   typeLabel: PropTypes.string,
-  desc: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
   isEditable: PropTypes.bool.isRequired,
   isExpanded: PropTypes.bool.isRequired,
   handleChange: PropTypes.func.isRequired,

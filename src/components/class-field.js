@@ -71,14 +71,14 @@ class ClassField extends React.Component {
     super(props)
 
     this.state = {
-      name: this.props.className || "",
-      desc: this.props.classDesc || "",
-      type: this.props.classSuperType || "",
-      classGenerics: this.props.classGenerics || [],
-      classInterfaces: this.props.classInterfaces || [],
-      classMixins: this.props.classMixins || [],
-      classProps: this.props.classProps || [],
-      classMethods: this.props.classMethods || [],
+      name: this.props.name || "",
+      description: this.props.description || "",
+      type: this.props.supertype || "",
+      generics: this.props.generics || [],
+      interfaces: this.props.interfaces || [],
+      mixins: this.props.mixins || [],
+      properties: this.props.properties || [],
+      methods: this.props.methods || [],
 
       isEditable: this.props.isEditable,
       isExpanded: this.props.isExpanded,
@@ -128,10 +128,8 @@ class ClassField extends React.Component {
         isEditable: !state.isEditable,
       }),
       this.props.onUpdate
-        ? () => {
-            const { className, classType, classDesc } = this.state
-            this.props.onUpdate(className, classType, classDesc)
-          }
+        ? () =>
+            this.props.onUpdate({ ...this.state, supertype: this.state.type })
         : undefined
     )
   }
@@ -198,9 +196,9 @@ class ClassField extends React.Component {
 
 ClassField.propTypes = {
   index: PropTypes.number.isRequired,
-  className: PropTypes.string,
-  classSuperType: PropTypes.string,
-  classDesc: PropTypes.string,
+  name: PropTypes.string,
+  supertype: PropTypes.string,
+  description: PropTypes.string,
   isEditable: PropTypes.bool,
   isExpanded: PropTypes.bool,
   isBoxed: PropTypes.bool,

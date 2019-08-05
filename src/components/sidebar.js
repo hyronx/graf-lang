@@ -1,12 +1,13 @@
 import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
-import SortableTree from "react-sortable-tree"
+import SortableTree, { getNodeAtPath } from "react-sortable-tree"
 import "react-sortable-tree/style.css"
 import uuid from "uuid/v4"
+//import { Type } from "graf-core"
 import ClassField from "./class-field"
 import ParameterField from "./parameter-field"
-import { getSidebarData, setSidebarData } from "../state"
+import { getSidebarData, setSidebarData, addTypes } from "../state"
 
 const Wrapper = styled.div`
   .rst__rowContents {
@@ -63,7 +64,7 @@ class Sidebar extends React.Component {
     const adjustedProps = {}
     for (const key in props) {
       adjustedProps[key] =
-        props[key].constructor.name === "Function"
+        props[key].constructor.name === "Function" && this.shouldCallProp(key)
           ? props[key](data)
           : props[key]
     }
@@ -71,9 +72,17 @@ class Sidebar extends React.Component {
     return React.createElement(component, adjustedProps)
   }
 
+  shouldCallProp(propName) {
+    return !propName.startsWith("on")
+  }
+
   createClassField = (props, params) => ({
     title: this.createTitle(ClassField, props),
-    props,
+    props: Object.assign(props, {
+      onUpdate(classType) {
+        addTypes(classType)
+      },
+    }),
     params,
     uuid: uuid(),
     type: "Class",
@@ -86,7 +95,7 @@ class Sidebar extends React.Component {
       this.props.isExpanded = value
     },
     children: params
-      .map(this.createParamField)
+      .map(({ props }) => this.createParamField(props))
       .concat([this.createAddButton({ type: "Parameter" })]),
   })
 
@@ -107,8 +116,17 @@ class Sidebar extends React.Component {
   })
 
   createAddButton = props => ({
-    title: ({ node }) => (
-      <AddButtonWrapper onClick={this.props.onAddElement}>
+    title: ({ node, path }) => (
+      <AddButtonWrapper
+        onClick={() => {
+          const parent = getNodeAtPath({
+            treeData: this.state.treeData,
+            path: path.slice(0, path.length - 1),
+            getNodeKey: this.getNodeKey,
+          })
+          this.props.onAddElement(node.props.type, parent.node)
+        }}
+      >
         <i className="fas fa-plus" />
         <label>{node.props.type}</label>
       </AddButtonWrapper>

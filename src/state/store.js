@@ -1,18 +1,22 @@
 import { createStore, combineReducers, applyMiddleware, compose } from "redux"
-import { locale, localeInitalState, getLang } from "./locale"
-import { sidebar, sidebarInitalState, getSidebarData } from "./sidebar"
+import { locale, localeInitialState, getLang } from "./locale"
+import { sidebar, sidebarInitialState, getSidebarData } from "./sidebar"
+import { types, typesInitialState, getTypes } from "./types"
 
 const topReducer = combineReducers({
   locale,
   sidebar,
+  types,
 })
 
 const rehydrateStore = () => {
   const sidebar = JSON.parse(window.localStorage.getItem("sidebar"))
-  const locale = window.localStorage.getItem("locale")
+  const locale = JSON.parse(window.localStorage.getItem("locale"))
+  const types = JSON.parse(window.localStorage.getItem("types"))
   return {
-    sidebar: sidebar ? sidebar : sidebarInitalState,
-    locale: locale ? locale : localeInitalState,
+    sidebar: sidebar ? sidebar : sidebarInitialState,
+    locale: locale ? locale : localeInitialState,
+    types: types ? types : typesInitialState,
   }
 }
 
@@ -30,6 +34,10 @@ const localStorage = store => next => action => {
         "sidebar",
         JSON.stringify({ treeData: getSidebarData(store) })
       )
+      break
+    case "ADD_TYPES":
+    case "REPLACE_TYPES":
+      window.localStorage.setItem("types", JSON.stringify(getTypes(store)))
       break
     default:
       break

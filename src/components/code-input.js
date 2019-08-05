@@ -48,8 +48,8 @@ class CodeInput extends React.Component {
 }
 
 CodeInput.propTypes = {
-  height: PropTypes.oneOf(PropTypes.number, PropTypes.string).isRequired,
-  width: PropTypes.oneOf(PropTypes.number, PropTypes.string).isRequired,
+  height: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired,
+  width: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired,
   onChange: PropTypes.func.isRequired,
 }
 

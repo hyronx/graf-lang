@@ -82,12 +82,14 @@ class Node extends React.Component {
           hideReport: false,
           report: (
             <text
-              x={reportViewPos.x / 3}
-              y={reportViewPos.y / 3}
+              x={reportViewPos.x + 50}
+              y={reportViewPos.y + 50}
               textAnchor={"left"}
               style={{ fill: "gold" }}
             >
-              {fullHistory.length > 0 ? fullHistory[0].data : null}
+              {fullHistory.length > 0
+                ? JSON.stringify(fullHistory[0].data)
+                : null}
             </text>
           ),
         }

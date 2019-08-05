@@ -7,12 +7,15 @@ import { max } from "d3-array"
 import { Row, Col } from "react-flexbox-grid"
 import Layout from "../components/layout"
 import ClassField from "../components/class-field"
+import ParameterField from "../components/parameter-field"
+import OperationField from "../components/operation-field"
 import SEO from "../components/seo"
 import CoffeeScript from "coffeescript"
 import Graph from "../components/graf"
 import CodeInput from "../components/code-input"
 import { executeNodesAsync, ASTProcessor } from "graf-core"
 import theme from "../../config/theme"
+import { getTypes, addTypes } from "../state"
 
 const EditorWrapper = styled.div`
   .terminal-base {
@@ -40,6 +43,8 @@ const modalStyles = {
   },
 }
 
+Modal.setAppElement("#___gatsby")
+
 class ThirdPage extends React.Component {
   constructor(props) {
     super(props)
@@ -56,7 +61,7 @@ class ThirdPage extends React.Component {
       links: [],
       height: this.props.height,
       width: this.props.width,
-      isModalOpen: false,
+      openModal: null,
     }
   }
 
@@ -85,8 +90,14 @@ class ThirdPage extends React.Component {
     return new Promise(resolve =>
       this.setState(
         {
-          height: max(this.astProcessor.nodes.map(n => n.y).concat([this.props.height])) + 200,
-          width: max(this.astProcessor.nodes.map(n => n.x).concat([this.props.width])) + 200,
+          height:
+            max(
+              this.astProcessor.nodes.map(n => n.y).concat([this.props.height])
+            ) + 200,
+          width:
+            max(
+              this.astProcessor.nodes.map(n => n.x).concat([this.props.width])
+            ) + 200,
           nodes: this.astProcessor.nodes,
           links: this.astProcessor.links,
         },
@@ -105,7 +116,57 @@ class ThirdPage extends React.Component {
     })
   }
 
-  handleCloseModal = () => this.setState({ isModalOpen: false })
+  handleCloseModal = () => this.setState({ openModal: null })
+
+  getModalContent = () => {
+    let modalContent = null
+    switch (this.state.openModal) {
+      case "Class":
+        modalContent = (
+          <ClassField
+            isExpanded={true}
+            isEditable={true}
+            isBoxed={true}
+            onUpdate={savedClass => addTypes(savedClass)}
+          />
+        )
+        break
+      case "Parameter":
+        modalContent = (
+          <ParameterField
+            isExpanded={true}
+            isEditable={true}
+            isBoxed={true}
+            onUpdate={this.handleUpdateParam}
+          />
+        )
+        break
+      case "Operation":
+        modalContent = (
+          <OperationField
+            isExpanded={true}
+            isEditable={true}
+            isBoxed={true}
+            //onUpdate={this.handleUpdateParam}
+          />
+        )
+        break
+      default:
+        break
+    }
+    return modalContent
+  }
+
+  handleUpdateParam = param => {
+    const parentType = getTypes().find(
+      t => t.name === this.state.parentNode.props.name
+    )
+    parentType.properties = parentType.properties.concat([param])
+    addTypes(parentType)
+  }
+
+  handleAddElement = (type, parentNode) =>
+    this.setState({ openModal: type, parentNode: parentNode })
 
   render() {
     return (
@@ -115,14 +176,14 @@ class ThirdPage extends React.Component {
         modals={[
           <Modal
             key={`modal-0`}
-            isOpen={this.state.isModalOpen}
+            isOpen={this.state.openModal !== null}
             onRequestClose={this.handleCloseModal}
             style={modalStyles}
           >
-            <ClassField isExpanded={true} isEditable={true} isBoxed={true} />
+            {this.getModalContent()}
           </Modal>,
         ]}
-        onAddElement={type => this.setState({ isModalOpen: true })}
+        onAddElement={this.handleAddElement}
       >
         <SEO title="Page three" />
         <Graph
