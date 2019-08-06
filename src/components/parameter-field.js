@@ -68,6 +68,24 @@ class ParameterField extends React.Component {
     }
   }
 
+  async shouldComponentUpdate(nextProps) {
+    if (nextProps !== this.props) {
+      await this.setState(state => ({ ...state, ...nextProps }))
+    }
+
+    return true
+  }
+
+  get isExpanded() {
+    return this.state.isExpanded
+  }
+
+  set isExpanded(value) {
+    this.setState({
+      isExpanded: value,
+    })
+  }
+
   handleChange = (source, event, data) => {
     switch (source) {
       case "type":
@@ -117,16 +135,18 @@ class ParameterField extends React.Component {
       state => ({
         isEditable: !state.isEditable,
       }),
-      this.props.onUpdate ? () => this.props.onUpdate(this.state) : undefined
+      this.props.onUpdate
+        ? () => this.props.onUpdate(Object.assign({}, this.state), this)
+        : undefined
     )
   }
 
   render() {
     return (
       <FieldWrapper
-        className={`graf-param active ${this.props.isBoxed ? "boxed" : ""}`}
+        className={`graf-param active ${this.props.isBoxed ? "box" : ""}`}
       >
-        {this.props.isExpanded ? (
+        {this.state.isExpanded ? (
           <ExtendedField
             index={this.props.index}
             prefix={"param"}

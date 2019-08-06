@@ -6,7 +6,9 @@ import "react-sortable-tree/style.css"
 import uuid from "uuid/v4"
 //import { Type } from "graf-core"
 import ClassField from "./class-field"
+import OperationField from "./operation-field"
 import ParameterField from "./parameter-field"
+import AddButton from "./add-button"
 import { getSidebarData, setSidebarData, addTypes } from "../state"
 
 const Wrapper = styled.div`
@@ -14,28 +16,10 @@ const Wrapper = styled.div`
     background-color: #21232b;
     border-radius: 0.8rem;
     border: 1px solid black;
-    z-index: 2;
+    z-index: 5;
   }
 
   height: 100%;
-`
-
-const AddButtonWrapper = styled.div`
-  > i {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(0%, -50%);
-  }
-
-  > label {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(75%, -50%);
-  }
-
-  position: relative;
 `
 
 class Sidebar extends React.Component {
@@ -51,6 +35,8 @@ class Sidebar extends React.Component {
     switch (node.type) {
       case "Class":
         return this.createClassField(node.props, node.params)
+      case "Operation":
+        return this.createOpField(node.props, node.params)
       case "Parameter":
         return this.createParamField(node.props, node.params)
       case "AddButton":
@@ -99,6 +85,29 @@ class Sidebar extends React.Component {
       .concat([this.createAddButton({ type: "Parameter" })]),
   })
 
+  createOpField = (props, params) => ({
+    title: this.createTitle(OperationField, props),
+    props: Object.assign(props, {
+      onUpdate(opType) {
+        addTypes(opType)
+      },
+    }),
+    params,
+    uuid: uuid(),
+    type: "Operation",
+    get expanded() {
+      // eslint-disable-next-line
+      return this.props.isExpanded
+    },
+    set expanded(value) {
+      // eslint-disable-next-line
+      this.props.isExpanded = value
+    },
+    children: params
+      .map(({ props }) => this.createParamField(props))
+      .concat([this.createAddButton({ type: "Parameter" })]),
+  })
+
   createParamField = props => ({
     title: this.createTitle(ParameterField, props),
     props,
@@ -117,7 +126,8 @@ class Sidebar extends React.Component {
 
   createAddButton = props => ({
     title: ({ node, path }) => (
-      <AddButtonWrapper
+      <AddButton
+        label={node.props.type}
         onClick={() => {
           const parent = getNodeAtPath({
             treeData: this.state.treeData,
@@ -126,10 +136,7 @@ class Sidebar extends React.Component {
           })
           this.props.onAddElement(node.props.type, parent.node)
         }}
-      >
-        <i className="fas fa-plus" />
-        <label>{node.props.type}</label>
-      </AddButtonWrapper>
+      />
     ),
     props,
     expanded: false,

@@ -1,7 +1,10 @@
 import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
+import { Argument } from "graf-core"
 import { FieldWrapper, CompactField, ExtendedField } from "./field"
+import ParameterField from "./parameter-field"
+import AddButton from "./add-button"
 import theme from "../../config/theme"
 
 const backgroundColor = theme.colors.dark.default.paper
@@ -14,6 +17,10 @@ const ExtendedWrapper = styled.form`
 
   .graf-op-prop {
     margin-bottom: 1rem;
+  }
+
+  .graf-op-add-param {
+    margin: 1rem 0;
   }
 `
 
@@ -59,10 +66,8 @@ class OperationField extends React.Component {
       type: this.props.type || "",
       description: this.props.description || "",
       args: this.props.args || [],
-
-      prevParamName: "",
-      prevParamType: "",
-      prevParamDesc: "",
+      paramFields: this.props.paramFields || [],
+      isParamFieldExpanded: true,
 
       isEditable: this.props.isEditable,
       isExpanded: this.props.isExpanded,
@@ -122,6 +127,35 @@ class OperationField extends React.Component {
     )
   }
 
+  addParamField = () => {
+    this.setState(state => ({
+      paramFields: [
+        ...state.paramFields,
+        <ParameterField
+          key={`graf-op-param-${state.args.length}`}
+          index={state.args.length}
+          isEditable={true}
+          isExpanded={state.isParamFieldExpanded}
+          isBoxed={true}
+          onUpdate={(paramState, paramField) => {
+            this.setState(state => ({
+              args: [
+                ...state.args,
+                new Argument(
+                  paramState.name,
+                  paramState.type,
+                  undefined,
+                  paramState.description
+                ),
+              ],
+            }))
+            paramField.isExpanded = false
+          }}
+        />,
+      ],
+    }))
+  }
+
   render() {
     return (
       <FieldWrapper
@@ -139,7 +173,22 @@ class OperationField extends React.Component {
             handleSubmit={this.handleSubmit}
             handleExpand={this.handleExpand}
             {...this.state}
-          />
+          >
+            {[
+              <label key="graf-op-params-label" htmlFor="graf-op-add-param">
+                Op Parameters
+              </label>,
+              ...this.state.paramFields,
+              <AddButton
+                key="graf-op-add-param"
+                id="graf-op-add-param"
+                name="graf-op-add-param"
+                className="graf-op-add-param button"
+                label="Parameter"
+                onClick={this.addParamField}
+              />,
+            ]}
+          </ExtendedField>
         ) : (
           <CompactField
             index={this.props.index}
@@ -173,6 +222,7 @@ OperationField.propTypes = {
   type: PropTypes.string,
   description: PropTypes.string,
   args: PropTypes.array,
+  paramFields: PropTypes.array,
   test: PropTypes.string,
   isEditable: PropTypes.bool,
   isExpanded: PropTypes.bool,

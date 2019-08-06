@@ -37,11 +37,31 @@ const modalStyles = {
     bottom: "auto",
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
-    width: "300px",
-    height: "500px",
     backgroundColor: theme.colors.dark.default.paper,
   },
 }
+
+const ModalInnerWrapper = styled.div`
+  ::-webkit-scrollbar {
+    width: 6px;
+    background-color: #f5f5f5;
+  }
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #f5f5f5;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: black;
+    outline: 1px solid black;
+  }
+
+  width: 500px;
+  height: 500px;
+  padding: 1rem;
+  overflow-y: scroll;
+`
 
 Modal.setAppElement("#___gatsby")
 
@@ -90,14 +110,12 @@ class ThirdPage extends React.Component {
     return new Promise(resolve =>
       this.setState(
         {
-          height:
-            max(
-              this.astProcessor.nodes.map(n => n.y).concat([this.props.height])
-            ) + 200,
-          width:
-            max(
-              this.astProcessor.nodes.map(n => n.x).concat([this.props.width])
-            ) + 200,
+          height: max(
+            this.astProcessor.nodes.map(n => n.y).concat([this.props.height])
+          ),
+          width: max(
+            this.astProcessor.nodes.map(n => n.x).concat([this.props.width])
+          ),
           nodes: this.astProcessor.nodes,
           links: this.astProcessor.links,
         },
@@ -127,7 +145,7 @@ class ThirdPage extends React.Component {
             isExpanded={true}
             isEditable={true}
             isBoxed={true}
-            onUpdate={savedClass => addTypes(savedClass)}
+            onUpdate={addTypes}
           />
         )
         break
@@ -137,7 +155,7 @@ class ThirdPage extends React.Component {
             isExpanded={true}
             isEditable={true}
             isBoxed={true}
-            onUpdate={this.handleUpdateParam}
+            onUpdate={this.handleAddParam}
           />
         )
         break
@@ -147,7 +165,7 @@ class ThirdPage extends React.Component {
             isExpanded={true}
             isEditable={true}
             isBoxed={true}
-            //onUpdate={this.handleUpdateParam}
+            onUpdate={addTypes}
           />
         )
         break
@@ -157,7 +175,7 @@ class ThirdPage extends React.Component {
     return modalContent
   }
 
-  handleUpdateParam = param => {
+  handleAddParam = param => {
     const parentType = getTypes().find(
       t => t.name === this.state.parentNode.props.name
     )
@@ -180,7 +198,7 @@ class ThirdPage extends React.Component {
             onRequestClose={this.handleCloseModal}
             style={modalStyles}
           >
-            {this.getModalContent()}
+            <ModalInnerWrapper>{this.getModalContent()}</ModalInnerWrapper>
           </Modal>,
         ]}
         onAddElement={this.handleAddElement}

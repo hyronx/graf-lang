@@ -107,29 +107,31 @@ export const ExtendedField = props => {
       placeholder: "Description",
     },
   ]
-  const children = standardChildren.concat(props.children).map(child =>
-    React.isValidElement(child) ? (
-      child
-    ) : (
-      <div
-        className={`graf-${props.prefix}-prop graf-${props.prefix}-${child.name}`}
-      >
-        <label htmlFor={`${props.prefix}-${child.name}-${props.index}`}>
-          {child.label}
-        </label>
-        <input
-          type={child.type || "text"}
-          name={`${props.prefix}-desc-${props.index}`}
-          id={`${props.prefix}-desc-${props.index}`}
-          disabled={!props.isEditable}
-          placeholder={child.placeholder}
-          maxLength={30}
-          value={props[child.name]}
-          onChange={event => props.handleChange(child.name, event)}
-        />
-      </div>
+  const children = standardChildren
+    .concat(Array.isArray(props.children) ? props.children : [props.children])
+    .map(child =>
+      React.isValidElement(child) ? (
+        child
+      ) : (
+        <div
+          className={`graf-${props.prefix}-prop graf-${props.prefix}-${child.name}`}
+        >
+          <label htmlFor={`${props.prefix}-${child.name}-${props.index}`}>
+            {child.label}
+          </label>
+          <input
+            type={child.type || "text"}
+            name={`${props.prefix}-desc-${props.index}`}
+            id={`${props.prefix}-desc-${props.index}`}
+            disabled={!props.isEditable}
+            placeholder={child.placeholder}
+            maxLength={30}
+            value={props[child.name]}
+            onChange={event => props.handleChange(child.name, event)}
+          />
+        </div>
+      )
     )
-  )
   return (
     <props.wrapper
       className={`graf-${props.prefix}-extended`}
@@ -137,8 +139,8 @@ export const ExtendedField = props => {
     >
       {props.isEditable ? (
         <div className="icons">
-          <i className="fas fa-times right" onClick={props.handleCancel} />
-          <i className="fas fa-check right" onClick={props.handleSubmit} />
+          <span className="fas fa-times right" onClick={props.handleCancel} />
+          <span className="fas fa-check right" onClick={props.handleSubmit} />
         </div>
       ) : (
         <div className="icons">

@@ -73,6 +73,30 @@ const mapClass = (classFieldNames, classFields, type, index) => {
   }
 }
 
+const mapOp = (opFieldNames, opFields, type, index) => {
+  const opFieldIndex = opFieldNames.indexOf(type.name)
+  if (opFieldIndex > -1 && opFields[opFieldIndex].type === "Class") {
+    const opField = opFields[opFieldIndex]
+    const paramFields = opField.params
+    const paramFieldNames = paramFields.map(t => t.name)
+    opField.props = Object.assign(opField.props, type)
+    opField.params = type.args.map((prop, i) =>
+      mapParam(paramFieldNames, paramFields, prop, i)
+    )
+    return opField
+  } else {
+    return {
+      type: "Operation",
+      props: {
+        index,
+        isExpanded: false,
+        ...type,
+      },
+      params: (type.args || []).map((prop, i) => mapParam([], [], prop, i)),
+    }
+  }
+}
+
 export const getSidebarData = store => {
   const state = store.getState()
   const classFields = state.sidebar.treeData
