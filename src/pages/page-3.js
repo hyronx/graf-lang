@@ -13,7 +13,7 @@ import SEO from "../components/seo"
 import CoffeeScript from "coffeescript"
 import Graph from "../components/graf"
 import CodeInput from "../components/code-input"
-import { executeNodesAsync, ASTProcessor } from "graf-core"
+import { executeNodesAsync, ASTProcessor, RootNode, LinkType } from "graf-core"
 import theme from "../../config/theme"
 import { getTypes, addTypes } from "../state"
 
@@ -60,7 +60,7 @@ const ModalInnerWrapper = styled.div`
   width: 500px;
   height: 500px;
   padding: 1rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 `
 
 Modal.setAppElement("#___gatsby")
@@ -86,17 +86,17 @@ class ThirdPage extends React.Component {
   }
 
   async addNodes(newNodes) {
-    this.astProcessor.process(newNodes)
-    console.log(
-      "Nodes sorted:",
-      this.astProcessor.nodes
-        .filter(n => n.isRunnable)
-        .sort((a, b) => a.execStep - b.execStep)
+    const firstNode = this.astProcessor.process(newNodes)
+    const rootLink = RootNode.linkWith(
+      firstNode,
+      LinkType.BOTTOM_TO_DEEPER_RIGHT
     )
+    const sortedNodes = this.astProcessor.nodes
+      .filter(n => n.isRunnable)
+      .sort((a, b) => a.execStep - b.execStep)
+    console.log("Nodes sorted:", sortedNodes)
 
-    const lastNode = this.astProcessor.nodes[this.astProcessor.nodes.length - 1]
-
-    await executeNodesAsync(lastNode, {
+    await executeNodesAsync(sortedNodes[0], {
       onTry({ node }) {},
       onWillRun({ node, args }) {
         console.log(`Node ${node} called with:`, args)
@@ -116,8 +116,8 @@ class ThirdPage extends React.Component {
           width: max(
             this.astProcessor.nodes.map(n => n.x).concat([this.props.width])
           ),
-          nodes: this.astProcessor.nodes,
-          links: this.astProcessor.links,
+          nodes: [RootNode, ...this.astProcessor.nodes],
+          links: [rootLink, ...this.astProcessor.links],
         },
         resolve
       )
@@ -144,7 +144,7 @@ class ThirdPage extends React.Component {
           <ClassField
             isExpanded={true}
             isEditable={true}
-            isBoxed={true}
+            isBoxed={false}
             onUpdate={addTypes}
           />
         )
@@ -154,7 +154,7 @@ class ThirdPage extends React.Component {
           <ParameterField
             isExpanded={true}
             isEditable={true}
-            isBoxed={true}
+            isBoxed={false}
             onUpdate={this.handleAddParam}
           />
         )
@@ -164,8 +164,9 @@ class ThirdPage extends React.Component {
           <OperationField
             isExpanded={true}
             isEditable={true}
-            isBoxed={true}
-            onUpdate={addTypes}
+            isBoxed={false}
+            showParams={true}
+            onUpdate={this.handleAddOp}
           />
         )
         break
@@ -181,6 +182,10 @@ class ThirdPage extends React.Component {
     )
     parentType.properties = parentType.properties.concat([param])
     addTypes(parentType)
+  }
+
+  handleAddOp = op => {
+    addTypes(op)
   }
 
   handleAddElement = (type, parentNode) =>

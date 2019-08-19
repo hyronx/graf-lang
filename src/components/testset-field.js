@@ -7,41 +7,41 @@ import theme from "../../config/theme"
 const backgroundColor = theme.colors.dark.default.paper
 
 const ExtendedWrapper = styled.form`
-  .graf-param-prop input {
+  .graf-testset-prop input {
     max-height: 2rem;
     background-color: ${backgroundColor};
   }
 
-  .graf-param-prop {
+  .graf-testset-prop {
     margin-bottom: 1rem;
   }
 `
 
 const CompactWrapper = styled.div`
-  div.graf-param-prop {
+  div.graf-testset-prop {
     padding: 0 0.75rem;
     background-color: ${backgroundColor};
     border-radius: 0.25rem;
     border: 1px solid ${backgroundColor};
   }
 
-  .graf-param-name {
+  .graf-testset-name {
     margin-right: 10px;
     font-weight: bold;
   }
 
-  .graf-param-type {
+  .graf-testset-type {
     margin: 0 10px;
     font-weight: bold;
     color: gold;
   }
 
-  .graf-param-desc {
+  .graf-testset-desc {
     margin: 0 10px;
     font-style: italic;
   }
 
-  .graf-param-seperator {
+  .graf-testset-seperator {
     //padding: 0 0.5rem;
   }
 
@@ -50,21 +50,13 @@ const CompactWrapper = styled.div`
   text-align: center;
 `
 
-class ParameterField extends React.Component {
+class TestSetField extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      name: this.props.name || "",
-      type: this.props.type || "",
-      description: this.props.description || "",
-      value: this.props.value || "",
-      assertion: this.props.assertion || "",
-
-      prevParamName: "",
-      prevParamType: "",
-      prevParamDesc: "",
-
+      inputs: this.props.inputs.map(input => [input, input.value]) || [],
+      output: this.props.output,
       isEditable: this.props.isEditable,
       isExpanded: this.props.isExpanded,
     }
@@ -89,24 +81,19 @@ class ParameterField extends React.Component {
   }
 
   handleChange = (source, event, data) => {
-    switch (source) {
-      case "type":
-        this.handleTypeChange(event, data)
-        break
-      default:
-        this.setState({ [source]: event.target.value })
-        break
-    }
-  }
-
-  handleTypeChange = ({ value }, { action }) => {
-    switch (action) {
-      case "select-option":
-      case "set-value":
-        this.setState({ type: value })
-        break
-      default:
-        break
+    const value = event.target.value
+    if (source.startsWith("input")) {
+      this.setState(state => {
+        const inputName = source.split("-", 2)[1]
+        const input = state.inputs.find(([input]) => input.name === inputName)
+        input[1] = value
+        return {
+          inputs: state.inputs,
+          [source]: value,
+        }
+      })
+    } else if (source === "output") {
+      this.setState({ output: value })
     }
   }
 
@@ -158,41 +145,45 @@ class ParameterField extends React.Component {
         {this.state.isExpanded ? (
           <ExtendedField
             index={this.props.index}
-            prefix={"param"}
+            prefix={"test"}
             wrapper={ExtendedWrapper}
-            title={props => <h3>Parameter {props.index}</h3>}
+            title={props => <h3>Test Set {props.index}</h3>}
             handleChange={this.handleChange}
             handleCancel={this.handleCancel}
             handleEdit={this.handleEdit}
             handleSubmit={this.handleSubmit}
             handleExpand={this.handleExpand}
+            withoutStandardChildren={true}
             {...this.state}
           >
             {[
+              ...this.state.inputs.map(([input]) => ({
+                name: `input-${input.name}`,
+                label: `Test Input for ${input.name}`,
+                placeholder: "Test Input Value",
+              })),
               {
-                name: "value",
-                label: "Param Default Value",
-                placeholder: "Default Value",
-              },
-              {
-                name: "assertion",
-                label: "Param Assertion",
-                placeholder: "Assertion Expression",
+                name: "output",
+                label: "Expected Output",
+                placeholder: "Expected Result",
               },
             ]}
           </ExtendedField>
         ) : (
           <CompactField
             index={this.props.index}
-            prefix={"param"}
+            prefix={"test"}
             wrapper={CompactWrapper}
-            props={[
-              { name: "name", label: this.state.name },
-              { seperator: ":" },
-              { name: "type", label: this.state.type },
-              { seperator: "–" },
-              { name: "desc", label: this.state.description },
-            ]}
+            props={this.state.inputs
+              .map(([input, value]) => [
+                { name: input.name, label: value },
+                { separator: "," },
+              ])
+              .flat()
+              .concat([
+                { seperator: "|->" },
+                { name: "output", label: this.state.output },
+              ])}
           />
         )}
       </FieldWrapper>
@@ -200,13 +191,10 @@ class ParameterField extends React.Component {
   }
 }
 
-ParameterField.propTypes = {
+TestSetField.propTypes = {
   index: PropTypes.number.isRequired,
-  name: PropTypes.string,
-  type: PropTypes.string,
-  description: PropTypes.string,
-  value: PropTypes.string,
-  assertion: PropTypes.string,
+  inputs: PropTypes.array.isRequired,
+  output: PropTypes.any.isRequired,
   isEditable: PropTypes.bool,
   isExpanded: PropTypes.bool,
   isBoxed: PropTypes.bool,
@@ -214,9 +202,9 @@ ParameterField.propTypes = {
   onUpdate: PropTypes.func,
 }
 
-ParameterField.defaultProps = {
+TestSetField.defaultProps = {
   isExpanded: false,
   isBoxed: true,
 }
 
-export default ParameterField
+export default TestSetField

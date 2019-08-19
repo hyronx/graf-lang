@@ -119,26 +119,33 @@ class Graph extends React.Component {
           </Group>
 
           <Group className="vx-network-nodes">
-            {nodes.map((node, i) => (
-              <Node
-                key={`vx-network-node-${i}`}
-                dragWidth={(node.column + 1) * columnWidth}
-                dragHeight={height}
-                radius={25}
-                node={node}
-                links={links}
-                onDragMove={this.onDragMoveNode(node)}
-              />
-            ))}
+            {nodes
+              .filter(node => !node.isInternal())
+              .map((node, i) => (
+                <Node
+                  key={`vx-network-node-${i}`}
+                  dragWidth={(node.column + 1) * columnWidth}
+                  dragHeight={height}
+                  radius={25}
+                  node={node}
+                  links={links}
+                  onDragMove={this.onDragMoveNode(node)}
+                />
+              ))}
           </Group>
         </Group>
-        <Spark
+        {/*<Spark
           key="spark"
           show={!this.isEmpty}
-          dx={!this.isEmpty ? this.lastNode.nextNodes[0].leftCenter.x - this.lastNode.rightCenter.x : 0}
+          dx={
+            !this.isEmpty
+              ? this.lastNode.nextNodes[0].leftCenter.x -
+                this.lastNode.rightCenter.x
+              : 0
+          }
           cx={!this.isEmpty ? this.lastNode.rightCenter.x : 0}
           cy={!this.isEmpty ? this.lastNode.rightCenter.y : 0}
-        />
+        />*/}
       </Wrapper>
     )
   }

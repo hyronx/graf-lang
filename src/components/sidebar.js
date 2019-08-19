@@ -2,6 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
 import SortableTree, { getNodeAtPath } from "react-sortable-tree"
+import FileExplorerTheme from "react-sortable-tree-theme-file-explorer"
 import "react-sortable-tree/style.css"
 import uuid from "uuid/v4"
 //import { Type } from "graf-core"
@@ -12,11 +13,29 @@ import AddButton from "./add-button"
 import { getSidebarData, setSidebarData, addTypes } from "../state"
 
 const Wrapper = styled.div`
-  .rst__rowContents {
+  .rstcustom__rowContents {
+    /*
     background-color: #21232b;
     border-radius: 0.8rem;
     border: 1px solid black;
+    */
     z-index: 5;
+    width: auto;
+  }
+
+  .rst__virtualScrollOverride::-webkit-scrollbar {
+    width: 6px;
+    background-color: #f5f5f5;
+  }
+
+  .rst__virtualScrollOverride::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #f5f5f5;
+  }
+
+  .rst__virtualScrollOverride::-webkit-scrollbar-thumb {
+    background-color: black;
+    outline: 1px solid black;
   }
 
   height: 100%;
@@ -50,7 +69,9 @@ class Sidebar extends React.Component {
     const adjustedProps = {}
     for (const key in props) {
       adjustedProps[key] =
-        props[key].constructor.name === "Function" && this.shouldCallProp(key)
+        props[key] &&
+        props[key].constructor.name === "Function" &&
+        this.shouldCallProp(key)
           ? props[key](data)
           : props[key]
     }
@@ -127,6 +148,7 @@ class Sidebar extends React.Component {
   createAddButton = props => ({
     title: ({ node, path }) => (
       <AddButton
+        className="box"
         label={node.props.type}
         onClick={() => {
           const parent = getNodeAtPath({
@@ -170,12 +192,15 @@ class Sidebar extends React.Component {
   }
 
   getRowHeight = ({ node }) => {
-    const result = node.expanded ? 400 : 62
+    const result = node.expanded ? 500 : 100
     return result
   }
 
   canDragNode = ({ node }) =>
-    node.type !== "AddButton" && node.expanded !== undefined && !node.expanded
+    !node.isExpanded &&
+    node.type !== "AddButton" &&
+    node.expanded !== undefined &&
+    !node.expanded
 
   componentWillUnmount() {
     setSidebarData(this.state.treeData)
@@ -192,6 +217,10 @@ class Sidebar extends React.Component {
           onVisibilityToggle={this.handleNodeVisibilityToggle}
           rowHeight={this.getRowHeight}
           canDrag={this.canDragNode}
+          theme={FileExplorerTheme}
+          innerStyle={{
+            paddingLeft: "10px",
+          }}
         />
       </Wrapper>
     )

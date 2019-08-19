@@ -1,9 +1,10 @@
 import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
-import { Argument } from "graf-core"
+import { Argument, TestSet } from "graf-core"
 import { FieldWrapper, CompactField, ExtendedField } from "./field"
 import ParameterField from "./parameter-field"
+import TestSetField from "./testset-field"
 import AddButton from "./add-button"
 import theme from "../../config/theme"
 
@@ -22,6 +23,8 @@ const ExtendedWrapper = styled.form`
   .graf-op-add-param {
     margin: 1rem 0;
   }
+
+  width: 18em;
 `
 
 const CompactWrapper = styled.div`
@@ -53,8 +56,9 @@ const CompactWrapper = styled.div`
   }
 
   display: inline-grid;
-  grid: 2rem / auto auto auto auto auto auto;
+  grid: 1em / ${props => "auto ".repeat(props.props.length)};
   text-align: center;
+  //width: 20em;
 `
 
 class OperationField extends React.Component {
@@ -66,8 +70,12 @@ class OperationField extends React.Component {
       type: this.props.type || "",
       description: this.props.description || "",
       args: this.props.args || [],
+      testSets: this.props.testSets || [],
       paramFields: this.props.paramFields || [],
+      testSetFields: this.props.testSetFields || [],
       isParamFieldExpanded: true,
+      isAddParamDisabled: false,
+      isAddTestSetDisabled: false,
 
       isEditable: this.props.isEditable,
       isExpanded: this.props.isExpanded,
@@ -123,43 +131,96 @@ class OperationField extends React.Component {
       state => ({
         isEditable: !state.isEditable,
       }),
-      this.props.onUpdate ? () => this.props.onUpdate(this.state) : undefined
+      this.props.onUpdate
+        ? () =>
+            this.props.onUpdate(
+              {
+                ...this.props,
+                ...this.state,
+              },
+              this.state
+            )
+        : undefined
     )
   }
 
   addParamField = () => {
-    this.setState(state => ({
-      paramFields: [
-        ...state.paramFields,
-        <ParameterField
-          key={`graf-op-param-${state.args.length}`}
-          index={state.args.length}
-          isEditable={true}
-          isExpanded={state.isParamFieldExpanded}
-          isBoxed={true}
-          onUpdate={(paramState, paramField) => {
-            this.setState(state => ({
-              args: [
-                ...state.args,
-                new Argument(
-                  paramState.name,
-                  paramState.type,
-                  undefined,
-                  paramState.description
-                ),
-              ],
-            }))
-            paramField.isExpanded = false
-          }}
-        />,
-      ],
-    }))
+    if (!this.state.isAddParamDisabled) {
+      this.setState(state => ({
+        isAddParamDisabled: !state.isAddParamDisabled,
+        paramFields: [
+          ...state.paramFields,
+          <ParameterField
+            key={`graf-op-param-${state.args.length}`}
+            index={state.args.length}
+            isEditable={true}
+            isExpanded={state.isParamFieldExpanded}
+            isBoxed={true}
+            onUpdate={(paramState, paramField) => {
+              this.setState(state => ({
+                args: [
+                  ...state.args,
+                  new Argument(
+                    paramState.name,
+                    paramState.type,
+                    undefined,
+                    paramState.description
+                  ),
+                ],
+              }))
+              paramField.isExpanded = false
+            }}
+          />,
+        ],
+      }))
+    } else {
+      this.setState(state => ({
+        isAddParamDisabled: state.paramFields.length !== state.args.length,
+        isAddTestSetDisabled: state.paramFields.length !== state.args.length,
+      }))
+    }
+  }
+
+  addTestSetField = () => {
+    if (!this.state.isAddTestSetDisabled) {
+      this.setState(state => ({
+        isAddTestSetDisabled: !state.isAddTestSetDisabled,
+        testSetFields: [
+          ...state.testSetFields,
+          <TestSetField
+            key={`graf-op-testset-${state.testSets.length}`}
+            index={state.testSets.length}
+            inputs={state.args}
+            output={state.result}
+            isEditable={true}
+            isExpanded={state.isParamFieldExpanded}
+            isBoxed={true}
+            onUpdate={(testSetState, testSetField) => {
+              this.setState(state => ({
+                testSets: [
+                  ...state.testSets,
+                  new TestSet(testSetState.output, testSetState.inputs),
+                ],
+              }))
+              testSetField.isExpanded = false
+            }}
+          />,
+        ],
+      }))
+    } else {
+      this.setState(state => ({
+        isAddParamDisabled:
+          state.testSetFields.length !== state.testSets.length,
+        isAddTestSetDisabled:
+          state.testSetFields.length !== state.testSets.length,
+      }))
+    }
   }
 
   render() {
     return (
       <FieldWrapper
-        className={`graf-op active ${this.props.isBoxed ? "boxed" : ""}`}
+        className={`graf-op active ${this.props.isBoxed ? "box" : ""}`}
       >
         {this.props.isExpanded ? (
           <ExtendedField
@@ -174,20 +235,39 @@ class OperationField extends React.Component {
             handleExpand={this.handleExpand}
             {...this.state}
           >
-            {[
-              <label key="graf-op-params-label" htmlFor="graf-op-add-param">
-                Op Parameters
-              </label>,
-              ...this.state.paramFields,
-              <AddButton
-                key="graf-op-add-param"
-                id="graf-op-add-param"
-                name="graf-op-add-param"
-                className="graf-op-add-param button"
-                label="Parameter"
-                onClick={this.addParamField}
-              />,
-            ]}
+            {this.props.showParams
+              ? [
+                  <label key="graf-op-params-label" htmlFor="graf-op-add-param">
+                    Op Parameters
+                  </label>,
+                  ...this.state.paramFields,
+                  <AddButton
+                    key="graf-op-add-param"
+                    id="graf-op-add-param"
+                    name="graf-op-add-param"
+                    className="graf-op-add-param button"
+                    label="Parameter"
+                    onClick={this.addParamField}
+                    disabled={this.state.isAddParamDisabled}
+                  />,
+                  <label
+                    key="graf-op-testsets-label"
+                    htmlFor="graf-op-add-testset"
+                  >
+                    Op Test Sets
+                  </label>,
+                  ...this.state.testSetFields,
+                  <AddButton
+                    key="graf-op-add-testset"
+                    id="graf-op-add-testset"
+                    name="graf-op-add-testset"
+                    className="graf-op-add-testset button"
+                    label="Test set"
+                    onClick={this.addTestSetField}
+                    disabled={this.state.isAddTestSetDisabled}
+                  />,
+                ]
+              : []}
           </ExtendedField>
         ) : (
           <CompactField
@@ -222,17 +302,22 @@ OperationField.propTypes = {
   type: PropTypes.string,
   description: PropTypes.string,
   args: PropTypes.array,
-  paramFields: PropTypes.array,
+  testSets: PropTypes.array,
+  paramFields: PropTypes.arrayOf(PropTypes.instanceOf(ParameterField)),
+  testSetFields: PropTypes.arrayOf(PropTypes.instanceOf(TestSetField)),
   test: PropTypes.string,
   isEditable: PropTypes.bool,
   isExpanded: PropTypes.bool,
   isBoxed: PropTypes.bool,
+  showParams: PropTypes.bool,
   onExpand: PropTypes.func,
   onUpdate: PropTypes.func,
 }
 
 OperationField.defaultProps = {
   isExpanded: false,
+  showParams: false,
+  isBoxed: true,
 }
 
 export default OperationField

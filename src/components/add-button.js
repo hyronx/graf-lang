@@ -11,8 +11,8 @@ const AddButtonWrapper = styled.div`
   text-align: center;
 `
 
-const AddButton = ({ onClick, label, className }) => (
-  <AddButtonWrapper className={className} onClick={onClick}>
+const AddButton = ({ onClick, label, ...otherProps }) => (
+  <AddButtonWrapper onClick={onClick} {...otherProps}>
     <span className="fas fa-plus" />
     {label}
   </AddButtonWrapper>

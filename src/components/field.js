@@ -71,42 +71,46 @@ export const FieldWrapper = styled.div`
   border: 1px solid black;
   padding: 0.5em 0.5em 0.5em;
   */
+  background-color: #21232b;
 `
 
 export const ExtendedField = props => {
-  const standardChildren = [
-    {
-      name: "name",
-      label: `${props.prefix.toUpperCase()} Name`,
-      placeholder: "Name",
-    },
-    <div
-      key={1}
-      className={`graf-${props.prefix}-prop graf-${props.prefix}-supertype`}
-    >
-      <label htmlFor={`${props.prefix}-type-${props.index}`}>
-        {props.prefix.toUpperCase()} {props.typeLabel}
-      </label>
-      <Select
-        id={`${props.prefix}-type-${props.index}`}
-        name={`${props.prefix}-type-${props.index}`}
-        className="graf-type-select"
-        isSearchable={true}
-        isClearable={true}
-        isDisabled={!props.isEditable}
-        placeholder="Type"
-        value={{ label: props.type, value: props.type }}
-        onChange={(...args) => props.handleChange("type", ...args)}
-        options={getTypes().map(t => ({ label: t, value: t }))}
-        styles={selectStyles}
-      />
-    </div>,
-    {
-      name: "description",
-      label: `${props.prefix.toUpperCase()} Description`,
-      placeholder: "Description",
-    },
-  ]
+  const standardChildren = props.withoutStandardChildren
+    ? []
+    : [
+        {
+          name: "name",
+          label: `${props.prefix.toUpperCase()} Name`,
+          placeholder: "Name",
+        },
+        <div
+          key={1}
+          className={`graf-${props.prefix}-prop graf-${props.prefix}-supertype`}
+        >
+          <label htmlFor={`${props.prefix}-type-${props.index}`}>
+            {props.prefix.toUpperCase()} {props.typeLabel}
+          </label>
+          <Select
+            id={`${props.prefix}-type-${props.index}`}
+            name={`${props.prefix}-type-${props.index}`}
+            className="graf-type-select"
+            isSearchable={true}
+            isClearable={true}
+            isDisabled={!props.isEditable}
+            placeholder="Type"
+            value={{ label: props.type, value: props.type }}
+            onChange={(...args) => props.handleChange("type", ...args)}
+            options={getTypes().map(t => ({ label: t, value: t }))}
+            styles={selectStyles}
+          />
+        </div>,
+        {
+          name: "description",
+          label: `${props.prefix.toUpperCase()} Description`,
+          placeholder: "Description",
+        },
+      ]
+
   const children = standardChildren
     .concat(Array.isArray(props.children) ? props.children : [props.children])
     .map(child =>
@@ -168,6 +172,7 @@ ExtendedField.propTypes = {
   description: PropTypes.string.isRequired,
   isEditable: PropTypes.bool.isRequired,
   isExpanded: PropTypes.bool.isRequired,
+  withoutStandardChildren: PropTypes.bool.isRequired,
   handleChange: PropTypes.func.isRequired,
   handleEdit: PropTypes.func.isRequired,
   handleCancel: PropTypes.func.isRequired,
@@ -189,6 +194,7 @@ ExtendedField.propTypes = {
 ExtendedField.defaultProps = {
   typeLabel: "Type",
   children: [],
+  withoutStandardChildren: false,
 }
 
 export const NotationWrapper = styled.div`
@@ -198,21 +204,20 @@ export const NotationWrapper = styled.div`
 `
 
 export const CompactField = props => (
-  <props.wrapper className={`graf-class-compact`}>
+  <props.wrapper className={`graf-class-compact`} {...props}>
     {/*<i className="fas fa-caret-right icon-left" onClick={props.handleExpand} />*/}
-    <NotationWrapper>
-      {props.props.map(p =>
-        p.seperator ? (
-          <p className={`graf-${props.prefix}-separator`}>{p.seperator}</p>
-        ) : (
-          <div
-            className={`graf-${props.prefix}-prop graf-${props.prefix}-${p.name}`}
-          >
-            <p>{p.label}</p>
-          </div>
-        )
-      )}
-    </NotationWrapper>
+
+    {props.props.map(p =>
+      p.seperator ? (
+        <p className={`graf-${props.prefix}-separator`}>{p.seperator}</p>
+      ) : (
+        <div
+          className={`graf-${props.prefix}-prop graf-${props.prefix}-${p.name}`}
+        >
+          <p>{p.label}</p>
+        </div>
+      )
+    )}
   </props.wrapper>
 )
 

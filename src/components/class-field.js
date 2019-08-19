@@ -129,7 +129,14 @@ class ClassField extends React.Component {
       }),
       this.props.onUpdate
         ? () =>
-            this.props.onUpdate({ ...this.state, supertype: this.state.type })
+            this.props.onUpdate(
+              {
+                ...this.props,
+                ...this.state,
+                supertype: this.state.type,
+              },
+              this.state
+            )
         : undefined
     )
   }
@@ -137,7 +144,7 @@ class ClassField extends React.Component {
   render() {
     return (
       <FieldWrapper
-        className={`graf-class active ${this.props.isBoxed ? "boxed" : ""}`}
+        className={`graf-class active ${this.props.isBoxed ? "box" : ""}`}
       >
         {this.props.isExpanded ? (
           <ExtendedField
@@ -209,7 +216,7 @@ ClassField.propTypes = {
 ClassField.defaultProps = {
   isEditable: false,
   isExpanded: false,
-  isBoxed: false,
+  isBoxed: true,
 }
 
 export default ClassField

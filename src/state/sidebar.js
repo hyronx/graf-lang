@@ -98,12 +98,18 @@ const mapOp = (opFieldNames, opFields, type, index) => {
 }
 
 export const getSidebarData = store => {
-  const state = store.getState()
-  const classFields = state.sidebar.treeData
-  const classFieldNames = classFields.map(t => t.name)
-  return state.types
+  const { types, sidebar } = store.getState()
+  const classFields = sidebar.treeData.filter(data => data.type === "Class")
+  const classFieldNames = classFields.map(c => c.name)
+  const classes = types
+    .filter(type => type.supertype)
     .map((type, i) => mapClass(classFieldNames, classFields, type, i))
-    .concat(sidebarInitialState.treeData)
+  const opFields = sidebar.treeData.filter(data => data.type === "Operation")
+  const opFieldNames = sidebar.treeData.map(op => op.name)
+  const ops = types
+    .filter(type => Array.isArray(type.args))
+    .map((type, i) => mapOp(opFieldNames, opFields, type, i))
+  return classes.concat(ops).concat(sidebarInitialState.treeData)
 }
 
 export const setSidebarData = (store, treeData) => {
