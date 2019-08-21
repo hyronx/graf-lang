@@ -9,6 +9,7 @@ import Layout from "../components/layout"
 import ClassField from "../components/class-field"
 import ParameterField from "../components/parameter-field"
 import OperationField from "../components/operation-field"
+import TestSetField from "../components/testset-field"
 import SEO from "../components/seo"
 import CoffeeScript from "coffeescript"
 import Graph from "../components/graf"
@@ -159,6 +160,16 @@ class ThirdPage extends React.Component {
           />
         )
         break
+      case "TestSet":
+        modalContent = (
+          <TestSetField
+            isExpanded={true}
+            isEditable={true}
+            isBoxed={false}
+            onUpdate={this.handleAddTestSet}
+          />
+        )
+        break
       case "Operation":
         modalContent = (
           <OperationField
@@ -180,16 +191,29 @@ class ThirdPage extends React.Component {
     const parentType = getTypes().find(
       t => t.name === this.state.parentNode.props.name
     )
-    parentType.properties = parentType.properties.concat([param])
+    parentType.properties = [...parentType.properties.concat, param]
     addTypes(parentType)
+    this.handleElementAdded()
+  }
+
+  handleAddTestSet = testSet => {
+    const parentType = getTypes().find(
+      t => t.name === this.state.parentNode.props.name
+    )
+    parentType.testSets = [...parentType.testSets.concat, testSet]
+    addTypes(parentType)
+    this.handleElementAdded()
   }
 
   handleAddOp = op => {
     addTypes(op)
+    this.handleElementAdded()
   }
 
   handleAddElement = (type, parentNode) =>
     this.setState({ openModal: type, parentNode: parentNode })
+
+  handleElementAdded = () => this.setState({ openModal: null })
 
   render() {
     return (
@@ -207,6 +231,7 @@ class ThirdPage extends React.Component {
           </Modal>,
         ]}
         onAddElement={this.handleAddElement}
+        onElementAdded={this.handleElementAdded}
       >
         <SEO title="Page three" />
         <Graph

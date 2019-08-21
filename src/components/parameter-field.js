@@ -111,9 +111,21 @@ class ParameterField extends React.Component {
   }
 
   handleEdit = () => {
-    this.setState(state => ({
-      isEditable: !state.isEditable,
-    }))
+    this.setState(
+      state => ({
+        isEditable: !state.isEditable,
+      }),
+      this.props.onEdit
+        ? () =>
+            this.props.onEdit(
+              {
+                ...this.props,
+                ...this.state,
+              },
+              this.state
+            )
+        : undefined
+    )
   }
 
   handleCancel = () => {
@@ -212,6 +224,7 @@ ParameterField.propTypes = {
   isBoxed: PropTypes.bool,
   onExpand: PropTypes.func,
   onUpdate: PropTypes.func,
+  onEdit: PropTypes.func,
 }
 
 ParameterField.defaultProps = {

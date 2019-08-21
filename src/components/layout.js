@@ -19,6 +19,7 @@ const Layout = ({
   pageWrapId,
   modals,
   onAddElement,
+  onElementAdded,
 }) => (
   <StaticQuery
     query={graphql`
@@ -43,7 +44,10 @@ const Layout = ({
         <Grid fluid>
           <Row>
             <Col xs={6} md={4} lg={3}>
-              <Sidebar onAddElement={onAddElement} />
+              <Sidebar
+                onAddElement={onAddElement}
+                onElementAdded={onElementAdded}
+              />
             </Col>
             <Col xs={6} md={8} lg={9}>
               <main id={pageWrapId}>{children}</main>
@@ -65,7 +69,11 @@ Layout.propTypes = {
   outerContainerId: PropTypes.string.isRequired,
   pageWrapId: PropTypes.string.isRequired,
   onAddElement: PropTypes.func,
-  modals: PropTypes.element,
+  onElementAdded: PropTypes.func,
+  modals: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.arrayOf(PropTypes.element),
+  ]),
   children: PropTypes.node.isRequired,
 }
 
@@ -74,6 +82,7 @@ Layout.defaultProps = {
   pageWrapId: "main",
   modals: [],
   onAddElement: type => console.log(`Add new ${type}`),
+  onElementAdded: node => console.log(`Added new ${node}`),
 }
 
 export default Layout

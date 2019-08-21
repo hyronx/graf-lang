@@ -108,9 +108,22 @@ class ClassField extends React.Component {
   }
 
   handleEdit = () => {
-    this.setState(state => ({
-      isEditable: !state.isEditable,
-    }))
+    this.setState(
+      state => ({
+        isEditable: !state.isEditable,
+      }),
+      this.props.onEdit
+        ? () =>
+            this.props.onEdit(
+              {
+                ...this.props,
+                ...this.state,
+                supertype: this.state.type,
+              },
+              this.state
+            )
+        : undefined
+    )
   }
 
   handleCancel = () => {}
@@ -153,7 +166,6 @@ class ClassField extends React.Component {
             wrapper={ExtendedWrapper}
             title={props => (
               <CompactWrapper className="graf-class-compact">
-                {/*<i className="fas fa-caret-down icon-left" onClick={props.handleExpand} />*/}
                 <NotationWrapper>
                   <p className="graf-class-separator">class</p>
                   <div className="graf-class-name">
@@ -211,6 +223,7 @@ ClassField.propTypes = {
   isBoxed: PropTypes.bool,
   onExpand: PropTypes.func,
   onUpdate: PropTypes.func,
+  onEdit: PropTypes.func,
 }
 
 ClassField.defaultProps = {

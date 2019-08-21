@@ -35,12 +35,13 @@ const CompactWrapper = styled.div`
     border: 1px solid ${backgroundColor};
   }
 
-  .graf-op-name {
+  .graf-op-name,
+  div[class*="graf-op-arg"] {
     margin-right: 10px;
     font-weight: bold;
   }
 
-  .graf-op-type {
+  div[class*="graf-op-type"] {
     margin: 0 10px;
     font-weight: bold;
     color: gold;
@@ -105,9 +106,21 @@ class OperationField extends React.Component {
   }
 
   handleEdit = () => {
-    this.setState(state => ({
-      isEditable: !state.isEditable,
-    }))
+    this.setState(
+      state => ({
+        isEditable: !state.isEditable,
+      }),
+      this.props.onEdit
+        ? () =>
+            this.props.onEdit(
+              {
+                ...this.props,
+                ...this.state,
+              },
+              this.state
+            )
+        : undefined
+    )
   }
 
   handleCancel = () => {
@@ -277,18 +290,19 @@ class OperationField extends React.Component {
             props={[
               { name: "name", label: this.state.name },
               { seperator: "(" },
-            ]
-              .concat(
-                this.props.args.flatMap((a, i) => [
+              ...(() => {
+                const args = this.props.args.flatMap((a, i) => [
                   { name: `arg-${i}`, label: a.name },
                   { seperator: ":" },
                   { name: `type-${i}`, label: a.type },
+                  { seperator: "," },
                 ])
-              )
-              .concat([
-                { seperator: "):" },
-                { name: "type", label: this.state.type },
-              ])}
+                args.pop()
+                return args
+              })(),
+              { seperator: "):" },
+              { name: "type", label: this.state.type },
+            ]}
           />
         )}
       </FieldWrapper>
@@ -303,8 +317,8 @@ OperationField.propTypes = {
   description: PropTypes.string,
   args: PropTypes.array,
   testSets: PropTypes.array,
-  paramFields: PropTypes.arrayOf(PropTypes.instanceOf(ParameterField)),
-  testSetFields: PropTypes.arrayOf(PropTypes.instanceOf(TestSetField)),
+  paramFields: PropTypes.arrayOf(PropTypes.element),
+  testSetFields: PropTypes.arrayOf(PropTypes.element),
   test: PropTypes.string,
   isEditable: PropTypes.bool,
   isExpanded: PropTypes.bool,
@@ -312,6 +326,7 @@ OperationField.propTypes = {
   showParams: PropTypes.bool,
   onExpand: PropTypes.func,
   onUpdate: PropTypes.func,
+  onEdit: PropTypes.func,
 }
 
 OperationField.defaultProps = {

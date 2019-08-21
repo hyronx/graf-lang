@@ -5,6 +5,8 @@ module.exports = {
         text: "gold",
         paper: "#21232b",
         background: "#2A293E",
+        hover: "rgba(255,255,255,0.075)",
+        active: "rgba(255,255,255,0.175)",
       },
       board: {
         sparks: "#F6F9FF",
@@ -12,6 +14,10 @@ module.exports = {
       },
       overlay: {
         background: "rgba(42, 41, 62, 80%)",
+      },
+      text: {
+        default: "white",
+        primary: "gold",
       },
     },
   },

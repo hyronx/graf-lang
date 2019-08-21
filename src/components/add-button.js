@@ -20,7 +20,7 @@ const AddButton = ({ onClick, label, ...otherProps }) => (
 
 AddButton.propTypes = {
   onClick: PropTypes.func.isRequired,
-  label: PropTypes.oneOf([PropTypes.string, PropTypes.element]).isRequired,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
   className: PropTypes.string,
 }
 

@@ -36,8 +36,16 @@ class CodeInput extends React.Component {
       <AceEditor
         mode="coffee"
         theme="chaos"
-        height={this.props.height}
-        width={this.props.width}
+        height={
+          Number.isNaN(this.props.height)
+            ? this.props.height
+            : this.props.height + "px"
+        }
+        width={
+          Number.isNaN(this.props.width)
+            ? this.props.width
+            : this.props.width + "px"
+        }
         onChange={this.handleChange}
         value={this.state.text}
         name="code-editor"
@@ -48,8 +56,8 @@ class CodeInput extends React.Component {
 }
 
 CodeInput.propTypes = {
-  height: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired,
-  width: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired,
+  height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   onChange: PropTypes.func.isRequired,
 }
 

@@ -34,14 +34,14 @@ const mapParam = (paramFieldNames, paramFields, prop, index) => {
     paramFields[paramFieldIndex].type === "Parameter"
   ) {
     const paramField = paramFields[paramFieldIndex]
-    return Object.assign(paramField.props, prop)
+    return { ...paramField.props, ...prop }
   } else {
     return {
       type: "Parameter",
       props: {
+        ...prop,
         index,
         isExpanded: false,
-        ...prop,
       },
     }
   }
@@ -53,7 +53,7 @@ const mapClass = (classFieldNames, classFields, type, index) => {
     const classField = classFields[classFieldIndex]
     const paramFields = classField.params
     const paramFieldNames = paramFields.map(t => t.name)
-    classField.props = Object.assign(classField.props, type)
+    classField.props = { ...classField.props, ...type }
     classField.params = type.properties.map((prop, i) =>
       mapParam(paramFieldNames, paramFields, prop, i)
     )
@@ -62,9 +62,9 @@ const mapClass = (classFieldNames, classFields, type, index) => {
     return {
       type: "Class",
       props: {
+        ...type,
         index,
         isExpanded: false,
-        ...type,
       },
       params: (type.properties || []).map((prop, i) =>
         mapParam([], [], prop, i)
@@ -75,27 +75,38 @@ const mapClass = (classFieldNames, classFields, type, index) => {
 
 const mapOp = (opFieldNames, opFields, type, index) => {
   const opFieldIndex = opFieldNames.indexOf(type.name)
-  if (opFieldIndex > -1 && opFields[opFieldIndex].type === "Class") {
+  if (opFieldIndex > -1 && opFields[opFieldIndex].type === "Operation") {
     const opField = opFields[opFieldIndex]
     const paramFields = opField.params
     const paramFieldNames = paramFields.map(t => t.name)
-    opField.props = Object.assign(opField.props, type)
+    opField.props = { ...opField.props, ...type }
     opField.params = type.args.map((prop, i) =>
       mapParam(paramFieldNames, paramFields, prop, i)
     )
+    opField.testSets = type.testSets.map(mapTestSet)
     return opField
   } else {
     return {
       type: "Operation",
       props: {
+        ...type,
         index,
         isExpanded: false,
-        ...type,
       },
       params: (type.args || []).map((prop, i) => mapParam([], [], prop, i)),
+      testSets: type.testSets.map(mapTestSet),
     }
   }
 }
+
+const mapTestSet = (testSet, index) => ({
+  type: "TestSet",
+  props: {
+    ...testSet,
+    index,
+    isExpanded: false,
+  },
+})
 
 export const getSidebarData = store => {
   const { types, sidebar } = store.getState()

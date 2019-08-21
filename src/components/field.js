@@ -165,7 +165,7 @@ ExtendedField.propTypes = {
   index: PropTypes.number.isRequired,
   wrapper: PropTypes.object.isRequired,
   prefix: PropTypes.string.isRequired,
-  title: PropTypes.oneOf([PropTypes.element, PropTypes.func]).isRequired,
+  title: PropTypes.oneOfType([PropTypes.element, PropTypes.func]).isRequired,
   name: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   typeLabel: PropTypes.string,
@@ -179,7 +179,7 @@ ExtendedField.propTypes = {
   handleExpand: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(
-    PropTypes.oneOf([
+    PropTypes.oneOfType([
       PropTypes.shape({
         name: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
@@ -205,8 +205,6 @@ export const NotationWrapper = styled.div`
 
 export const CompactField = props => (
   <props.wrapper className={`graf-class-compact`} {...props}>
-    {/*<i className="fas fa-caret-right icon-left" onClick={props.handleExpand} />*/}
-
     {props.props.map(p =>
       p.seperator ? (
         <p className={`graf-${props.prefix}-separator`}>{p.seperator}</p>
@@ -226,7 +224,7 @@ CompactField.propTypes = {
   wrapper: PropTypes.object.isRequired,
   prefix: PropTypes.string.isRequired,
   props: PropTypes.arrayOf(
-    PropTypes.oneOf([
+    PropTypes.oneOfType([
       PropTypes.shape({
         name: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,

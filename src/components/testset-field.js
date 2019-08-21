@@ -1,6 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
+import { Argument } from "graf-core"
 import { FieldWrapper, CompactField, ExtendedField } from "./field"
 import theme from "../../config/theme"
 
@@ -25,20 +26,14 @@ const CompactWrapper = styled.div`
     border: 1px solid ${backgroundColor};
   }
 
-  .graf-testset-name {
+  .graf-testset-prop {
     margin-right: 10px;
     font-weight: bold;
   }
 
-  .graf-testset-type {
+  .graf-testset-output {
     margin: 0 10px;
-    font-weight: bold;
-    color: gold;
-  }
-
-  .graf-testset-desc {
-    margin: 0 10px;
-    font-style: italic;
+    font-style: bold;
   }
 
   .graf-testset-seperator {
@@ -54,8 +49,15 @@ class TestSetField extends React.Component {
   constructor(props) {
     super(props)
 
+    let inputs = this.props.inputs || []
+    if (inputs.length > 0 && inputs[0] instanceof Argument) {
+      inputs = inputs.map(input => [input, input.value])
+    } else if (inputs.length > 0 && !Array.isArray(inputs[0])) {
+      throw new Error("Illegal prop type for inputs")
+    }
+
     this.state = {
-      inputs: this.props.inputs.map(input => [input, input.value]) || [],
+      inputs,
       output: this.props.output,
       isEditable: this.props.isEditable,
       isExpanded: this.props.isExpanded,
@@ -98,9 +100,21 @@ class TestSetField extends React.Component {
   }
 
   handleEdit = () => {
-    this.setState(state => ({
-      isEditable: !state.isEditable,
-    }))
+    this.setState(
+      state => ({
+        isEditable: !state.isEditable,
+      }),
+      this.props.onEdit
+        ? () =>
+            this.props.onEdit(
+              {
+                ...this.props,
+                ...this.state,
+              },
+              this.state
+            )
+        : undefined
+    )
   }
 
   handleCancel = () => {
@@ -137,15 +151,27 @@ class TestSetField extends React.Component {
     )
   }
 
+  mapInputs() {
+    const inputs = this.state.inputs.flatMap(([input, value]) => [
+      { name: input.name, label: value },
+      { seperator: "," },
+    ])
+    inputs.pop()
+    return inputs.concat([
+      { seperator: "≟" },
+      { name: "output", label: this.state.output },
+    ])
+  }
+
   render() {
     return (
       <FieldWrapper
-        className={`graf-param active ${this.props.isBoxed ? "box" : ""}`}
+        className={`graf-testset active ${this.props.isBoxed ? "box" : ""}`}
       >
         {this.state.isExpanded ? (
           <ExtendedField
             index={this.props.index}
-            prefix={"test"}
+            prefix={"testset"}
             wrapper={ExtendedWrapper}
             title={props => <h3>Test Set {props.index}</h3>}
             handleChange={this.handleChange}
@@ -172,18 +198,9 @@ class TestSetField extends React.Component {
         ) : (
           <CompactField
             index={this.props.index}
-            prefix={"test"}
+            prefix={"testset"}
             wrapper={CompactWrapper}
-            props={this.state.inputs
-              .map(([input, value]) => [
-                { name: input.name, label: value },
-                { separator: "," },
-              ])
-              .flat()
-              .concat([
-                { seperator: "|->" },
-                { name: "output", label: this.state.output },
-              ])}
+            props={this.mapInputs()}
           />
         )}
       </FieldWrapper>
@@ -193,13 +210,16 @@ class TestSetField extends React.Component {
 
 TestSetField.propTypes = {
   index: PropTypes.number.isRequired,
-  inputs: PropTypes.array.isRequired,
+  inputs: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.array, PropTypes.instanceOf(Argument)])
+  ).isRequired,
   output: PropTypes.any.isRequired,
   isEditable: PropTypes.bool,
   isExpanded: PropTypes.bool,
   isBoxed: PropTypes.bool,
   onExpand: PropTypes.func,
   onUpdate: PropTypes.func,
+  onEdit: PropTypes.func,
 }
 
 TestSetField.defaultProps = {
