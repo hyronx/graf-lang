@@ -17,9 +17,11 @@ const Layout = ({
   children,
   outerContainerId,
   pageWrapId,
+  treeData,
   modals,
   onAddElement,
   onElementAdded,
+  onElementSelected,
 }) => (
   <StaticQuery
     query={graphql`
@@ -40,13 +42,19 @@ const Layout = ({
           padding: "0 1.0875rem 1.45rem 0",
         }}
       >
-        <Header id="header" siteTitle={data.site.siteMetadata.title} />
+        <Header
+          id="header"
+          siteTitle={data.site.siteMetadata.title}
+          onAddElement={onAddElement}
+        />
         <Grid fluid>
           <Row>
             <Col xs={6} md={4} lg={3}>
               <Sidebar
+                treeData={treeData}
                 onAddElement={onAddElement}
                 onElementAdded={onElementAdded}
+                onElementSelected={onElementSelected}
               />
             </Col>
             <Col xs={6} md={8} lg={9}>
@@ -68,8 +76,10 @@ const Layout = ({
 Layout.propTypes = {
   outerContainerId: PropTypes.string.isRequired,
   pageWrapId: PropTypes.string.isRequired,
+  treeData: PropTypes.array.isRequired,
   onAddElement: PropTypes.func,
   onElementAdded: PropTypes.func,
+  onElementSelected: PropTypes.func,
   modals: PropTypes.oneOfType([
     PropTypes.element,
     PropTypes.arrayOf(PropTypes.element),

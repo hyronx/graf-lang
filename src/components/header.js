@@ -22,13 +22,31 @@ const MenuItemWrapper = styled.div`
   text-align: center;
 `
 
-const Header = ({ siteTitle }) => (
+const handleClick = onAddElement => ({ key }) => {
+  let typeToAdd
+  switch (key) {
+    case "1-1":
+      typeToAdd = "Class"
+      break
+    case "1-2":
+      typeToAdd = "Operation"
+      break
+    case "1-3":
+      //typeToAdd = "Parameter"
+      break
+  }
+  onAddElement(typeToAdd)
+}
+
+const Header = ({ siteTitle, onAddElement }) => (
   <HeaderWrapper className="graf-header">
     <GlobalMenuStyle prefixClass={menuPrefixClass} />
     <Menu
       mode="horizontal"
       openAnimation="slide-up"
       prefixCls={menuPrefixClass}
+      selectable={false}
+      onClick={handleClick(onAddElement)}
     >
       <SubMenu title="Data" key="1">
         <MenuItem key="1-1">
@@ -64,6 +82,7 @@ const Header = ({ siteTitle }) => (
 
 Header.propTypes = {
   siteTitle: PropTypes.string,
+  onAddElement: PropTypes.func.isRequired,
 }
 
 Header.defaultProps = {

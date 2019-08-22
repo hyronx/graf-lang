@@ -1,5 +1,6 @@
 export const sidebarInitialState = {
   treeData: [
+    /*
     {
       type: "AddButton",
       props: {
@@ -12,6 +13,7 @@ export const sidebarInitialState = {
         type: "Operation",
       },
     },
+    */
   ],
 }
 

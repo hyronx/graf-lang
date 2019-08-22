@@ -17,6 +17,7 @@ import CodeInput from "../components/code-input"
 import { executeNodesAsync, ASTProcessor, RootNode, LinkType } from "graf-core"
 import theme from "../../config/theme"
 import { getTypes, addTypes } from "../state"
+import SidebarBuilder from "../utils/sidebar-builder"
 
 const EditorWrapper = styled.div`
   .terminal-base {
@@ -76,6 +77,9 @@ class ThirdPage extends React.Component {
     this.astProcessor = new ASTProcessor()
     this.outerContainerId = "outer-container"
     this.pageWrapId = "page-wrap"
+    this.sidebarBuilder = new SidebarBuilder({
+      onElementAdded: this.handleElementAdded,
+    })
 
     this.state = {
       nodes: [],
@@ -83,6 +87,8 @@ class ThirdPage extends React.Component {
       height: this.props.height,
       width: this.props.width,
       openModal: null,
+      treeData: this.sidebarBuilder.treeData,
+      selectedNode: null,
     }
   }
 
@@ -146,7 +152,7 @@ class ThirdPage extends React.Component {
             isExpanded={true}
             isEditable={true}
             isBoxed={false}
-            onUpdate={addTypes}
+            onUpdate={this.handleAddType}
           />
         )
         break
@@ -177,7 +183,7 @@ class ThirdPage extends React.Component {
             isEditable={true}
             isBoxed={false}
             showParams={true}
-            onUpdate={this.handleAddOp}
+            onUpdate={this.handleAddType}
           />
         )
         break
@@ -205,21 +211,33 @@ class ThirdPage extends React.Component {
     this.handleElementAdded()
   }
 
-  handleAddOp = op => {
-    addTypes(op)
+  handleAddType = typeState => {
+    const newType = this.sidebarBuilder.prepareNodeForUpdate(typeState)
+    addTypes(newType)
     this.handleElementAdded()
   }
 
   handleAddElement = (type, parentNode) =>
     this.setState({ openModal: type, parentNode: parentNode })
 
-  handleElementAdded = () => this.setState({ openModal: null })
+  handleElementAdded = () =>
+    this.setState({
+      openModal: null,
+      treeData: this.sidebarBuilder.treeData,
+    })
+
+  handleElementSelected = (key, parentKey) => {
+    this.setState({
+      selectedNode: this.sidebarBuilder.findNode(parentKey),
+    })
+  }
 
   render() {
     return (
       <Layout
         outerContainerId={this.outerContainerId}
         pageWrapId={this.pageWrapId}
+        treeData={this.state.treeData}
         modals={[
           <Modal
             key={`modal-0`}
@@ -232,6 +250,7 @@ class ThirdPage extends React.Component {
         ]}
         onAddElement={this.handleAddElement}
         onElementAdded={this.handleElementAdded}
+        onElementSelected={this.handleElementSelected}
       >
         <SEO title="Page three" />
         <Graph
