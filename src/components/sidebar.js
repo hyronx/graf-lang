@@ -86,6 +86,7 @@ export default class Sidebar extends React.Component {
     onAddElement: PropTypes.func,
     onElementAdded: PropTypes.func,
     onElementSelected: PropTypes.func,
+    onElementDeselected: PropTypes.func,
   }
 
   static defaultProps = {
@@ -182,6 +183,16 @@ export default class Sidebar extends React.Component {
     console.log("on select")
   }
 
+  handleDeselect = ({ item, key }) => {
+    if (this.props.onElementDeselected) {
+      this.props.onElementDeselected(
+        key,
+        item.props.parentMenu.menuInstance.props.parentMenu.props.eventKey
+      )
+    }
+    console.log("on deselect")
+  }
+
   renderOperation(node) {
     if (this.state.openKeys.includes(node.uuid)) {
       return [
@@ -218,6 +229,7 @@ export default class Sidebar extends React.Component {
           onClick={this.handleClick}
           onOpenChange={this.handleChange}
           onSelect={this.handleSelect}
+          onDeselect={this.handleDeselect}
         >
           {this.props.treeData.map(node => {
             if (Array.isArray(node.children)) {

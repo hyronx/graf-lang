@@ -22,6 +22,7 @@ const Layout = ({
   onAddElement,
   onElementAdded,
   onElementSelected,
+  onElementDeselected,
 }) => (
   <StaticQuery
     query={graphql`
@@ -55,6 +56,7 @@ const Layout = ({
                 onAddElement={onAddElement}
                 onElementAdded={onElementAdded}
                 onElementSelected={onElementSelected}
+                onElementDeselected={onElementDeselected}
               />
             </Col>
             <Col xs={6} md={8} lg={9}>
@@ -80,6 +82,7 @@ Layout.propTypes = {
   onAddElement: PropTypes.func,
   onElementAdded: PropTypes.func,
   onElementSelected: PropTypes.func,
+  onElementDeselected: PropTypes.func,
   modals: PropTypes.oneOfType([
     PropTypes.element,
     PropTypes.arrayOf(PropTypes.element),

@@ -1,3 +1,5 @@
+import { ClassType, OperationType } from "graf-core"
+
 export const sidebarInitialState = {
   treeData: [
     /*
@@ -64,7 +66,7 @@ const mapClass = (classFieldNames, classFields, type, index) => {
     return {
       type: "Class",
       props: {
-        ...type,
+        ...new ClassType(type).toJSON(),
         index,
         isExpanded: false,
       },
@@ -91,7 +93,7 @@ const mapOp = (opFieldNames, opFields, type, index) => {
     return {
       type: "Operation",
       props: {
-        ...type,
+        ...new OperationType(type).toJSON(),
         index,
         isExpanded: false,
       },

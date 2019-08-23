@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware, compose } from "redux"
 import { locale, localeInitialState, getLang } from "./locale"
 import { sidebar, sidebarInitialState, getSidebarData } from "./sidebar"
-import { types, typesInitialState, getTypes } from "./types"
+import { types, typesInitialState, getTypes, deserializeTypes } from "./types"
 
 const topReducer = combineReducers({
   locale,
@@ -12,7 +12,9 @@ const topReducer = combineReducers({
 const rehydrateStore = () => {
   const sidebar = JSON.parse(window.localStorage.getItem("sidebar"))
   const locale = JSON.parse(window.localStorage.getItem("locale"))
-  const types = JSON.parse(window.localStorage.getItem("types"))
+  const types = deserializeTypes(
+    JSON.parse(window.localStorage.getItem("types")) || []
+  )
   return {
     sidebar: sidebar ? sidebar : sidebarInitialState,
     locale: locale ? locale : localeInitialState,

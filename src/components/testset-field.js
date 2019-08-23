@@ -62,6 +62,9 @@ class TestSetField extends React.Component {
       isEditable: this.props.isEditable,
       isExpanded: this.props.isExpanded,
     }
+    for (const [input, value] of inputs) {
+      this.state[`input-${input.name}`] = value
+    }
   }
 
   async shouldComponentUpdate(nextProps) {

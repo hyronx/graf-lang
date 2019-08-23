@@ -5,6 +5,7 @@ import styled from "styled-components"
 import Modal from "react-modal"
 import { max } from "d3-array"
 import { Row, Col } from "react-flexbox-grid"
+import { ClassType, OperationType } from "graf-core"
 import Layout from "../components/layout"
 import ClassField from "../components/class-field"
 import ParameterField from "../components/parameter-field"
@@ -152,7 +153,7 @@ class ThirdPage extends React.Component {
             isExpanded={true}
             isEditable={true}
             isBoxed={false}
-            onUpdate={this.handleAddType}
+            onUpdate={this.handleAddClassType}
           />
         )
         break
@@ -183,7 +184,7 @@ class ThirdPage extends React.Component {
             isEditable={true}
             isBoxed={false}
             showParams={true}
-            onUpdate={this.handleAddType}
+            onUpdate={this.handleAddOpType}
           />
         )
         break
@@ -211,9 +212,13 @@ class ThirdPage extends React.Component {
     this.handleElementAdded()
   }
 
-  handleAddType = typeState => {
-    const newType = this.sidebarBuilder.prepareNodeForUpdate(typeState)
-    addTypes(newType)
+  handleAddClassType = typeState => {
+    addTypes(new ClassType(typeState))
+    this.handleElementAdded()
+  }
+
+  handleAddOpType = typeState => {
+    addTypes(new OperationType(typeState))
     this.handleElementAdded()
   }
 
@@ -226,10 +231,49 @@ class ThirdPage extends React.Component {
       treeData: this.sidebarBuilder.treeData,
     })
 
-  handleElementSelected = (key, parentKey) => {
-    this.setState({
-      selectedNode: this.sidebarBuilder.findNode(parentKey),
+  handleElementSelected = (key, parentKey) =>
+    this.setState(state => {
+      const selectedNode = this.sidebarBuilder.findNode(parentKey)
+      return {
+        selectedNode,
+        nodes:
+          state.nodes.length > 0 ? state.nodes : selectedNode.props.code.nodes,
+        links:
+          state.links.length > 0 ? state.links : selectedNode.props.code.links,
+      }
     })
+
+  handleElementDeselected = (key, parentKey) => {
+    this.setState({
+      selectedNode: null,
+    })
+  }
+
+  updateType(node) {
+    switch (node.props.metaData.typeName) {
+      case "Operation":
+        addTypes(new OperationType(node.props))
+        break
+      case "Class":
+        addTypes(new ClassType(node.props))
+        break
+      default:
+        break
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedNode, nodes, links } = this.state
+    if (
+      selectedNode === prevState.selectedNode &&
+      nodes.length > 0 &&
+      selectedNode.props.code.nodes !== nodes &&
+      selectedNode.props.code.links !== links
+    ) {
+      selectedNode.props.code.nodes = nodes
+      selectedNode.props.code.links = links
+      this.updateType(selectedNode)
+    }
   }
 
   render() {
@@ -251,6 +295,7 @@ class ThirdPage extends React.Component {
         onAddElement={this.handleAddElement}
         onElementAdded={this.handleElementAdded}
         onElementSelected={this.handleElementSelected}
+        onElementDeselected={this.handleElementDeselected}
       >
         <SEO title="Page three" />
         <Graph

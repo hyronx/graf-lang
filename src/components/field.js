@@ -130,7 +130,7 @@ export const ExtendedField = props => {
             disabled={!props.isEditable}
             placeholder={child.placeholder}
             maxLength={30}
-            value={props[child.name]}
+            value={props[child.name] || child.value}
             onChange={event => props.handleChange(child.name, event)}
           />
         </div>
@@ -166,10 +166,10 @@ ExtendedField.propTypes = {
   wrapper: PropTypes.object.isRequired,
   prefix: PropTypes.string.isRequired,
   title: PropTypes.oneOfType([PropTypes.element, PropTypes.func]).isRequired,
-  name: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  type: PropTypes.string,
   typeLabel: PropTypes.string,
-  description: PropTypes.string.isRequired,
+  description: PropTypes.string,
   isEditable: PropTypes.bool.isRequired,
   isExpanded: PropTypes.bool.isRequired,
   withoutStandardChildren: PropTypes.bool.isRequired,

@@ -1,3 +1,5 @@
+import { OperationType, ClassType } from "graf-core"
+
 export const typesInitialState = []
 
 const replaceTypes = (state, newTypes) => {
@@ -25,6 +27,17 @@ export function types(state = typesInitialState, action) {
       return state
   }
 }
+
+export const deserializeTypes = types =>
+  types.map(type => {
+    switch (type.metaData.typeName) {
+      case "Operation":
+        return OperationType.fromJSON(type)
+      case "Class":
+      default:
+        return ClassType.fromJSON(type)
+    }
+  })
 
 export const getTypes = store => store.getState().types
 
