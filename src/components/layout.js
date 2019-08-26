@@ -12,6 +12,7 @@ import { Grid, Row, Col } from "react-flexbox-grid"
 import "../assets/css/main.css"
 import Header from "./header"
 import Sidebar from "./sidebar"
+import { getTypes } from "../state"
 
 const Layout = ({
   children,
@@ -52,7 +53,8 @@ const Layout = ({
           <Row>
             <Col xs={6} md={4} lg={3}>
               <Sidebar
-                treeData={treeData}
+                elements={getTypes()}
+                selectable={true}
                 onAddElement={onAddElement}
                 onElementAdded={onElementAdded}
                 onElementSelected={onElementSelected}

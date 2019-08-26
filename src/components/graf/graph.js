@@ -2,12 +2,10 @@ import React from "react"
 import { Group } from "@vx/group"
 import PropTypes from "prop-types"
 import styled from "styled-components"
-import posed, { PoseGroup } from "react-pose"
-import { easeExpOut } from "d3-ease"
 import theme from "../../../config/theme"
 import Node from "./node"
 import Link from "./link"
-import Spark from "./spark"
+import SparkFloat from "./spark-float"
 
 const Wrapper = styled.svg`
   .unselectable {
@@ -134,18 +132,7 @@ class Graph extends React.Component {
               ))}
           </Group>
         </Group>
-        {/*<Spark
-          key="spark"
-          show={!this.isEmpty}
-          dx={
-            !this.isEmpty
-              ? this.lastNode.nextNodes[0].leftCenter.x -
-                this.lastNode.rightCenter.x
-              : 0
-          }
-          cx={!this.isEmpty ? this.lastNode.rightCenter.x : 0}
-          cy={!this.isEmpty ? this.lastNode.rightCenter.y : 0}
-        />*/}
+        <SparkFloat show={!this.isEmpty} nodes={nodes} links={links} />
       </Wrapper>
     )
   }

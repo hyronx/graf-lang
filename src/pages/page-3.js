@@ -89,7 +89,9 @@ class ThirdPage extends React.Component {
       width: this.props.width,
       openModal: null,
       treeData: this.sidebarBuilder.treeData,
-      selectedNode: null,
+      selectedElement: null,
+      prevNodes: null,
+      prevLinks: null,
     }
   }
 
@@ -233,19 +235,23 @@ class ThirdPage extends React.Component {
 
   handleElementSelected = (key, parentKey) =>
     this.setState(state => {
-      const selectedNode = this.sidebarBuilder.findNode(parentKey)
+      const selectedElement = this.sidebarBuilder.findNode(parentKey)
       return {
-        selectedNode,
+        selectedElement,
         nodes:
-          state.nodes.length > 0 ? state.nodes : selectedNode.props.code.nodes,
+          state.nodes.length > 0
+            ? state.nodes
+            : selectedElement.props.code.nodes,
         links:
-          state.links.length > 0 ? state.links : selectedNode.props.code.links,
+          state.links.length > 0
+            ? state.links
+            : selectedElement.props.code.links,
       }
     })
 
   handleElementDeselected = (key, parentKey) => {
     this.setState({
-      selectedNode: null,
+      selectedElement: null,
     })
   }
 
@@ -263,16 +269,32 @@ class ThirdPage extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { selectedNode, nodes, links } = this.state
+    const { selectedElement, nodes, links, prevNodes, prevLinks } = this.state
     if (
-      selectedNode === prevState.selectedNode &&
+      selectedElement === prevState.selectedElement &&
       nodes.length > 0 &&
-      selectedNode.props.code.nodes !== nodes &&
-      selectedNode.props.code.links !== links
+      prevNodes !== nodes &&
+      prevLinks !== links &&
+      selectedElement.props.code.nodes !== nodes &&
+      selectedElement.props.code.links !== links
     ) {
-      selectedNode.props.code.nodes = nodes
-      selectedNode.props.code.links = links
-      this.updateType(selectedNode)
+      selectedElement.props.code.nodes = nodes
+      selectedElement.props.code.links = links
+      this.updateType(selectedElement)
+      this.setState({
+        prevNodes: nodes,
+        prevLinks: links,
+      })
+    } else if (
+      selectedElement !== prevState.selectedElement &&
+      selectedElement.props.code.nodes.length > 0 &&
+      selectedElement.props.code.nodes !== nodes &&
+      selectedElement.props.code.links !== links
+    ) {
+      this.setState({
+        nodes: selectedElement.props.code.nodes,
+        links: selectedElement.props.code.links,
+      })
     }
   }
 

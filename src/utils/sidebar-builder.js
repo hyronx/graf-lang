@@ -175,12 +175,14 @@ export default class SidebarBuilder {
       this.props.isExpanded = value
     },
     editable: props.isEditable || false,
-    paramFields: params
-      .map(node => this.createParamField(this.prepareProps(node)))
-      .concat([this.createAddButton({ type: "Parameter" })]),
-    testSetFields: testSets
-      .map(node => this.createTestSetField(this.prepareProps(node)))
-      .concat([this.createAddButton({ type: "TestSet" })]),
+    paramFields: params.map(node =>
+      this.createParamField(this.prepareProps(node))
+    ),
+    //.concat([this.createAddButton({ type: "Parameter" })]),
+    testSetFields: testSets.map(node =>
+      this.createTestSetField(this.prepareProps(node))
+    ),
+    //.concat([this.createAddButton({ type: "TestSet" })]),
     get children() {
       return this.paramFields.concat(this.testSetFields)
     },
