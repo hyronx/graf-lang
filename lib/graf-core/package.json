@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "d3-array": "^2.2.0",
+    "rete": "^1.4.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

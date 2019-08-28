@@ -13,7 +13,7 @@ import OperationField from "../components/operation-field"
 import TestSetField from "../components/testset-field"
 import SEO from "../components/seo"
 import CoffeeScript from "coffeescript"
-import Graph from "../components/graf"
+//import Graph from "../components/graf"
 import CodeInput from "../components/code-input"
 import { executeNodesAsync, ASTProcessor, RootNode, LinkType } from "graf-core"
 import theme from "../../config/theme"
@@ -312,14 +312,14 @@ class ThirdPage extends React.Component {
         onElementDeselected={this.handleElementDeselected}
       >
         <SEO title="Page three" />
-        <Graph
+        {/*<Graph
           height={this.state.height}
           width={this.state.width}
           data={{
             nodes: this.state.nodes,
             links: this.state.links,
           }}
-        />
+        />*/}
         <Row>
           <EditorWrapper>
             <CodeInput
