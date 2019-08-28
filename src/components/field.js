@@ -2,6 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
 import Select from "react-select"
+import posed from "react-pose"
 import { getTypes } from "graf-core"
 import theme from "../../config/theme"
 
@@ -74,6 +75,17 @@ export const FieldWrapper = styled.div`
   background-color: #21232b;
 `
 
+const IconContainer = posed.div({
+  enter: {
+    x: "0%",
+    delayChildren: 200,
+  },
+  exit: {
+    x: "-100%",
+    delay: 300,
+  },
+})
+
 export const ExtendedField = props => {
   const standardChildren = props.withoutStandardChildren
     ? []
@@ -142,15 +154,15 @@ export const ExtendedField = props => {
       onSubmit={props.handleSubmit}
     >
       {props.isEditable ? (
-        <div className="icons">
+        <IconContainer className="icons">
           <span className="fas fa-times right" onClick={props.handleCancel} />
           <span className="fas fa-check right" onClick={props.handleSubmit} />
-        </div>
+        </IconContainer>
       ) : (
-        <div className="icons">
+        <IconContainer className="icons">
           <i className="fas fa-trash-alt right" />
           <i className="fas fa-edit right" onClick={props.handleEdit} />
-        </div>
+        </IconContainer>
       )}
 
       {props.title.constructor.name === "Function"

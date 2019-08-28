@@ -51,17 +51,17 @@ const Layout = ({
         />
         <Grid fluid>
           <Row>
-            <Col xs={6} md={4} lg={3}>
+            <Col xs={6} md={4} lg={4}>
               <Sidebar
                 elements={getTypes()}
                 selectable={true}
                 onAddElement={onAddElement}
                 onElementAdded={onElementAdded}
-                onElementSelected={onElementSelected}
-                onElementDeselected={onElementDeselected}
+                onSelect={onElementSelected}
+                onDeselect={onElementDeselected}
               />
             </Col>
-            <Col xs={6} md={8} lg={9}>
+            <Col xs={6} md={8} lg={8}>
               <main id={pageWrapId}>{children}</main>
             </Col>
           </Row>

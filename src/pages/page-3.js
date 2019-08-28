@@ -233,35 +233,26 @@ class ThirdPage extends React.Component {
       treeData: this.sidebarBuilder.treeData,
     })
 
-  handleElementSelected = (key, parentKey) =>
-    this.setState(state => {
-      const selectedElement = this.sidebarBuilder.findNode(parentKey)
-      return {
-        selectedElement,
-        nodes:
-          state.nodes.length > 0
-            ? state.nodes
-            : selectedElement.props.code.nodes,
-        links:
-          state.links.length > 0
-            ? state.links
-            : selectedElement.props.code.links,
-      }
-    })
+  handleElementSelected = ({ element }) =>
+    this.setState(state => ({
+      selectedElement: element,
+      nodes: state.nodes.length > 0 ? state.nodes : element.code.nodes,
+      links: state.links.length > 0 ? state.links : element.code.links,
+    }))
 
-  handleElementDeselected = (key, parentKey) => {
+  handleElementDeselected = () => {
     this.setState({
       selectedElement: null,
     })
   }
 
   updateType(node) {
-    switch (node.props.metaData.typeName) {
+    switch (node.typeName) {
       case "Operation":
-        addTypes(new OperationType(node.props))
+        addTypes(new OperationType(node))
         break
       case "Class":
-        addTypes(new ClassType(node.props))
+        addTypes(new ClassType(node))
         break
       default:
         break
@@ -275,11 +266,11 @@ class ThirdPage extends React.Component {
       nodes.length > 0 &&
       prevNodes !== nodes &&
       prevLinks !== links &&
-      selectedElement.props.code.nodes !== nodes &&
-      selectedElement.props.code.links !== links
+      selectedElement.code.nodes !== nodes &&
+      selectedElement.code.links !== links
     ) {
-      selectedElement.props.code.nodes = nodes
-      selectedElement.props.code.links = links
+      selectedElement.code.nodes = nodes
+      selectedElement.code.links = links
       this.updateType(selectedElement)
       this.setState({
         prevNodes: nodes,
@@ -287,13 +278,14 @@ class ThirdPage extends React.Component {
       })
     } else if (
       selectedElement !== prevState.selectedElement &&
-      selectedElement.props.code.nodes.length > 0 &&
-      selectedElement.props.code.nodes !== nodes &&
-      selectedElement.props.code.links !== links
+      selectedElement &&
+      selectedElement.code.nodes.length > 0 &&
+      selectedElement.code.nodes !== nodes &&
+      selectedElement.code.links !== links
     ) {
       this.setState({
-        nodes: selectedElement.props.code.nodes,
-        links: selectedElement.props.code.links,
+        nodes: selectedElement.code.nodes,
+        links: selectedElement.code.links,
       })
     }
   }

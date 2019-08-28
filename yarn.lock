@@ -9279,7 +9279,7 @@ popmotion-pose@^3.4.0:
     ts-essentials "^1.0.3"
     tslib "^1.9.1"
 
-popmotion@^8.6.2:
+popmotion@^8.6.2, popmotion@^8.7.0:
   version "8.7.0"
   resolved "https://registry.yarnpkg.com/popmotion/-/popmotion-8.7.0.tgz#83e03a14dc1f24e73b9488c6d9d7b14e5ac0947d"
   integrity sha512-RnJMbWN+TEBT0tgG+3WS0O1i9LAq+senXSAcKw+srGviT1c9G+iKUXrp24D2w6Og0mDd61rEfKz3pFrFCdKn5Q==
@@ -10811,6 +10811,32 @@ ret@~0.1.10:
   version "0.1.15"
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
   integrity sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==
+
+rete-connection-plugin@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/rete-connection-plugin/-/rete-connection-plugin-0.8.2.tgz#d6185d312d3642c46194e0a1392a0b0b2e1627a7"
+  integrity sha512-/HJ/01Ozq1fPoIarcQ4QhfITQlcXNKnQbeXyOP2sbwmsFRgpmh5U7n2EESTH8OQ4qbuYyzd0IepuUvhO+BSmWg==
+
+rete-context-menu-plugin@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/rete-context-menu-plugin/-/rete-context-menu-plugin-0.4.1.tgz#284cbd55dca0f91b88f57425b8b1f6c57af3eb5d"
+  integrity sha512-diFsHqIpnCgxgVXGtj9KyjXL/l0F8NByOIoYiyXqU+oVXW94xNEuiwEG2HCR60UXOrplYFdPesAeyJTsFX+9fQ==
+  dependencies:
+    lodash "^4.17.11"
+    vue "^2.5.17"
+
+rete-react-render-plugin@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/rete-react-render-plugin/-/rete-react-render-plugin-0.2.0.tgz#35e74383fc9c12c8a61fc54c74de43e85ac765f7"
+  integrity sha512-1onQTVALyTsHSnKB/KIA+Xu4TdyWuS3yck6tK8+o4XR+I0MuYfa8JT8nzyHmtIW3e9yV+NQZb1j9R5ZTQvSllA==
+  dependencies:
+    react "^16.8.6"
+    react-dom "^16.8.6"
+
+rete@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/rete/-/rete-1.4.1.tgz#34ae011c0bc06ac9833b85dece1bfaf40152f169"
+  integrity sha512-XbRyrDTYr9iY3Tl6p5WsTr4b8a140OoxK6gTKNOD4wCdVdbZZScs6QIth2ef3rwYgsPb9/gL98fx85S8fP+4pw==
 
 retry@^0.12.0:
   version "0.12.0"
@@ -12523,6 +12549,11 @@ vm-browserify@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz#bd76d6a23323e2ca8ffa12028dc04559c75f9019"
   integrity sha512-iq+S7vZJE60yejDYM0ek6zg308+UZsdtPExWP9VZoCFCz1zkJoXFnAX7aZfd/ZwrkidzdUZL0C/ryW+JwAiIGw==
+
+vue@^2.5.17:
+  version "2.6.10"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.10.tgz#a72b1a42a4d82a721ea438d1b6bf55e66195c637"
+  integrity sha512-ImThpeNU9HbdZL3utgMCq0oiMzAkt1mcgy3/E6zWC/G6AaQoeuFdsl9nDhTDU3X1R6FK7nsIUuRACVcjI+A2GQ==
 
 warning@^3.0.0:
   version "3.0.0"

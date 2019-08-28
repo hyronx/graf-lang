@@ -1,239 +1,197 @@
-import React from "react"
-import { Drag } from "@vx/drag"
-import { Group } from "@vx/group"
+import React, { useState } from "react"
 import PropTypes from "prop-types"
-import { Position } from "graf-core"
+import posed from "react-pose"
+import { Group } from "@vx/group"
+import {
+  Position,
+  Node as NodeData,
+  Link as LinkData,
+  SequenceNode as SequenceNodeData,
+  ReportNode as ReportNodeData,
+} from "graf-core"
 import ReportNode from "./report-node"
 
-class Node extends React.Component {
-  constructor(props) {
-    super(props)
+const SequenceSymbol = ({ isDragging, dx, dy, node }) => (
+  <Group key={`node-${node.id}`} className={`node-${node.name}`}>
+    <circle
+      className={`symbol-${node.name}`}
+      cx={dx + 50}
+      cy={dy + 25}
+      r={10}
+      stroke={isDragging ? "white" : "transparent"}
+      strokeWidth={2}
+      style={{ fill: "black" }}
+    />
+  </Group>
+)
 
-    this.afterClickDragMove = this.afterClickDragMove.bind(this)
-    this.handleResultNodeClick = this.handleResultNodeClick.bind(this)
+SequenceSymbol.propTypes = {
+  isDragging: PropTypes.bool.isRequired,
+  dx: PropTypes.number.isRequired,
+  dy: PropTypes.number.isRequired,
+  node: PropTypes.instanceOf(NodeData).isRequired,
+}
 
-    this.props.node.onRunning = this.handleNodeRunning.bind(this)
-    this.props.node.onFinished = this.handleNodeRunning.bind(this)
+const getFullHistory = node =>
+  node.resultHistory
+    .concat(node.errorHistory)
+    .sort((a, b) => a.startTime - b.startTime)
 
-    this.state = {
-      doubleClicked: false,
-      line: null,
-      hideReport: true,
-      report: true,
-      glow: false,
-      glowTime: this.props.glowTime || 3000,
-    }
-  }
+const ReportSymbol = ({ dx, dy, node }) => {
+  const [isReportHidden, setReportHidden] = useState(true)
+  const [fullHistory, setFullHistory] = useState(getFullHistory(node))
+  const reportViewPos = new Position(dx + 100, dy, node.column)
 
-  afterClickDragMove({ dx, dy }) {
-    const { node, onDragMove, links } = this.props
+  return (
+    <Group
+      key={`node-${node.id}`}
+      className={`node-${node.name}`}
+      onClick={() => {
+        if (isReportHidden) {
+          if (
+            node.resultHistory.length === 0 &&
+            node.errorHistory.length === 0
+          ) {
+            node.run()
+          }
 
-    const nodeAsSourceLinks = links.filter(
-      ({ source }) => node.id === source.id
-    )
-    for (let link of nodeAsSourceLinks) {
-      // TODO: use clone
-      link.component.update({
-        source: {
-          name: node.name,
-          x: node.x + dx,
-          y: node.y + dy,
-        },
-      })
-    }
+          const history = getFullHistory(node)
+          if (history !== fullHistory) setFullHistory(history)
 
-    const nodeAsTargetLinks = links.filter(
-      ({ target }) => node.id === target.id
-    )
-    for (let link of nodeAsTargetLinks) {
-      link.component.update({
-        target: {
-          name: node.name,
-          x: node.x + dx,
-          y: node.y + dy,
-        },
-      })
-    }
-
-    if (onDragMove !== undefined) onDragMove(dx, dy)
-  }
-
-  async handleNodeRunning() {
-    await new Promise(resolve => setTimeout(resolve, this.state.glowTime))
-    return this.setState(({ glow, glowTime }) => ({
-      glow: !glow,
-      glowTime: glowTime + (glow ? -1000 : 1000),
-    }))
-  }
-
-  handleResultNodeClick(reportViewPos) {
-    this.setState(state => {
-      if (state.hideReport) {
-        const { node } = this.props
-        if (node.resultHistory.length === 0 && node.errorHistory.length === 0) {
-          node.run()
+          setReportHidden(false)
+        } else {
+          setReportHidden(true)
         }
-
-        const fullHistory = node.resultHistory
-          .concat(node.errorHistory)
-          .sort((a, b) => a.startTime - b.startTime)
-
-        return {
-          hideReport: false,
-          report: (
-            <text
-              x={reportViewPos.x + 50}
-              y={reportViewPos.y + 50}
-              textAnchor={"left"}
-              style={{ fill: "gold" }}
-            >
-              {fullHistory.length > 0
-                ? JSON.stringify(fullHistory[0].data)
-                : null}
-            </text>
-          ),
-        }
-      } else {
-        return { hideReport: true }
-      }
-    })
-  }
-
-  //getReport(fullHistory)
-
-  /**
-   * Renders the symbol based on the name
-   * @param {boolean} isDragging
-   * @param {number} dx
-   * @param {number} dy
-   * @param {Node} node
-   * @returns {*} the symbol as a React component
-   */
-  renderSymbol(isDragging, dx, dy, node) {
-    switch (node.name) {
-      case "·":
-        return (
-          <Group key={`node-${node.id}`} className={`node-${node.name}`}>
-            <circle
-              className={`symbol-${node.name}`}
-              cx={dx + 50}
-              cy={dy + 25}
-              r={10}
-              stroke={isDragging ? "white" : "transparent"}
-              strokeWidth={2}
-              style={{ fill: "black" }}
-            />
-          </Group>
-        )
-      case "#>":
-        return (
-          <Group
-            key={`node-${node.id}`}
-            className={`node-${node.name}`}
-            onClick={() =>
-              this.handleResultNodeClick(
-                new Position(dx + 100, dy, node.column)
-              )
-            }
-          >
-            <ReportNode x={dx} y={dy} />
-            <Group
-              className="node-report-view"
-              visibility={this.state.hideReport ? "hidden" : "visible"}
-              transform={`translate(${dx + 100}, ${dy})`}
-            >
-              <rect
-                x={0}
-                y={0}
-                height={100}
-                width={300}
-                style={{ fill: "black" }}
-              />
-              {this.state.report}
-            </Group>
-          </Group>
-        )
-      default:
-        return (
-          <Group key={`node-${node.id}`} className={`node-${node.name}`}>
-            <rect
-              className={`symbol-${node.name}`}
-              x={dx}
-              y={dy}
-              height={50}
-              width={100}
-              rx={5}
-              stroke={isDragging ? "white" : "transparent"}
-              strokeWidth={2}
-              style={{ fill: this.state.glow ? "green" : "black" }}
-            />
-            <text
-              className={"unselectable"}
-              x={dx + 50 / 3}
-              y={dy + 100 / 3}
-              textAnchor={"middle"}
-              style={{ fill: "gold" }}
-            >
-              {node.name}
-            </text>
-          </Group>
-        )
-    }
-  }
-
-  render() {
-    const { dragHeight, dragWidth, node, children } = this.props
-    return (
-      <Drag
-        key={`drag-${node.name}`}
-        width={dragWidth}
-        height={dragHeight}
-        resetOnStart={true}
-        onDragMove={this.afterClickDragMove}
-        onDragEnd={this.props.onDragEnd}
+      }}
+    >
+      <ReportNode x={dx} y={dy} />
+      <Group
+        className="node-report-view"
+        visibility={isReportHidden ? "hidden" : "visible"}
+        transform={`translate(${dx + 100}, ${dy})`}
       >
-        {({ dragStart, dragEnd, dragMove, isDragging, dx, dy }) => {
-          return (
-            <Group
-              className={"vx-network-node"}
-              transform={`translate(${node.x}, ${node.y})`}
-              onMouseMove={dragMove}
-              onMouseUp={dragEnd}
-              onMouseDown={dragStart}
-              onTouchMove={dragMove}
-              onTouchEnd={dragEnd}
-              onTouchStart={dragStart}
-            >
-              {this.renderSymbol(isDragging, dx, dy, node)}
-              {children &&
-                children.forEach(c =>
-                  c({
-                    dragStart,
-                    dragEnd,
-                    dragMove,
-                    isDragging,
-                    dx,
-                    dy,
-                  })
-                )}
-            </Group>
-          )
-        }}
-      </Drag>
-    )
-  }
+        <rect x={0} y={0} height={100} width={300} style={{ fill: "black" }} />
+        {isReportHidden && (
+          <text
+            x={reportViewPos.x + 50}
+            y={reportViewPos.y + 50}
+            textAnchor={"left"}
+            style={{ fill: "gold" }}
+          >
+            {fullHistory.length > 0
+              ? JSON.stringify(fullHistory[0].data)
+              : null}
+          </text>
+        )}
+      </Group>
+    </Group>
+  )
+}
+
+ReportSymbol.propTypes = {
+  isDragging: PropTypes.bool.isRequired,
+  dx: PropTypes.number.isRequired,
+  dy: PropTypes.number.isRequired,
+  node: PropTypes.instanceOf(NodeData).isRequired,
+}
+
+const DefaultSymbol = ({ isDragging, dx, dy, node, isGlowing }) => (
+  <Group key={`node-${node.id}`} className={`node-${node.name}`}>
+    <rect
+      className={`symbol-${node.name}`}
+      x={dx}
+      y={dy}
+      height={50}
+      width={100}
+      rx={5}
+      stroke={isDragging ? "white" : "transparent"}
+      strokeWidth={2}
+      style={{ fill: isGlowing ? "green" : "black" }}
+    />
+    <text
+      className={"unselectable"}
+      x={dx + 50 / 3}
+      y={dy + 100 / 3}
+      textAnchor={"middle"}
+      style={{ fill: "gold" }}
+    >
+      {node.name}
+    </text>
+  </Group>
+)
+
+DefaultSymbol.propTypes = {
+  isDragging: PropTypes.bool.isRequired,
+  dx: PropTypes.number.isRequired,
+  dy: PropTypes.number.isRequired,
+  node: PropTypes.instanceOf(NodeData).isRequired,
+  isGlowing: PropTypes.bool.isRequired,
+}
+
+const renderSymbol = props => {
+  if (props.node instanceof SequenceNodeData)
+    return <SequenceSymbol {...props} />
+  else if (props.node instanceof ReportNodeData)
+    return <ReportSymbol {...props} />
+  else return <DefaultSymbol {...props} />
+}
+
+const NodeWrapper = posed.g({
+  draggable: true,
+})
+
+const Node = ({ node, onDragStart, onDragMove, onDragEnd }) => {
+  const [isDragging, setDraggingState] = useState(false)
+  const [changedValue, handleValueChange] = useState({ x: node.x, y: node.y })
+  const [isGlowing, setGlowing] = useState(false)
+
+  return (
+    <NodeWrapper
+      className={"vx-network-node"}
+      x={node.x}
+      y={node.y}
+      onValueChange={{
+        x: x => {
+          const newValue = { ...changedValue, x }
+          handleValueChange(newValue)
+          onDragMove(newValue)
+        },
+        y: y => {
+          const newValue = { ...changedValue, y }
+          handleValueChange(newValue)
+          onDragMove(newValue)
+        },
+      }}
+      onDragStart={event => {
+        setDraggingState(true)
+        if (onDragStart) onDragStart(event)
+      }}
+      onDragEnd={event => {
+        setDraggingState(false)
+        if (onDragEnd) onDragEnd(event)
+      }}
+    >
+      {renderSymbol({
+        isDragging,
+        dx: changedValue.x,
+        dy: changedValue.y,
+        node,
+        isGlowing,
+      })}
+    </NodeWrapper>
+  )
 }
 
 Node.propTypes = {
-  dragWidth: PropTypes.number.isRequired,
-  dragHeight: PropTypes.number.isRequired,
-  node: PropTypes.shape({
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    id: PropTypes.string.isRequired,
+  dragBounds: PropTypes.shape({
+    top: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    bottom: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    left: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    right: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }).isRequired,
-  links: PropTypes.array.isRequired,
+  node: PropTypes.instanceOf(NodeData).isRequired,
+  links: PropTypes.arrayOf(PropTypes.instanceOf(LinkData)).isRequired,
+  onDragStart: PropTypes.func,
   onDragMove: PropTypes.func,
   onDragEnd: PropTypes.func,
   glowTime: PropTypes.number,

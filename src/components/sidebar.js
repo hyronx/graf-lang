@@ -2,9 +2,11 @@ import React, { useState } from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
 import { FaCaretRight, FaCaretDown } from "react-icons/fa"
+import posed from "react-pose"
 import { Node } from "graf-core"
 import OperationField from "./operation-field"
 import ClassField from "./class-field"
+import theme from "../../config/theme"
 
 const createField = (component, props) => {
   return React.createElement(component, props)
@@ -17,10 +19,40 @@ const SidebarElementWrapper = styled.li`
   }
 
   .graf-sidebar-element-caret {
-    display: block;
-    margin: auto;
+    position: relative;
+    top: 40%;
+    left: 50%;
   }
+
+  .graf-sidebar-element-content {
+    position: relative;
+    top: 10%;
+    left: 10%;
+  }
+
+  height: 100%;
 `
+
+const SidebarElementContainer = posed.div({
+  hoverable: props => props.hoverable,
+  pressable: props => props.pressable,
+  init: {
+    scale: 1,
+    boxShadow: "0px 0px 0px rgba(0,0,0,0)",
+  },
+  hover: {
+    scale: 1.05,
+    boxShadow: "0px 5px 10px rgba(0,0,0,0.2)",
+  },
+  press: {
+    scale: 1.05,
+    boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
+  },
+  props: {
+    hoverable: true,
+    pressable: true,
+  },
+})
 
 const SidebarElement = ({
   element,
@@ -28,6 +60,7 @@ const SidebarElement = ({
   onClick,
   onSelect,
   onDeselect,
+  className = "graf-sidebar-element",
 }) => (
   <SidebarElementWrapper
     onClick={event => {
@@ -35,23 +68,33 @@ const SidebarElement = ({
       if (onDeselect && isSelected) onDeselect({ event, element })
       if (onClick) onClick({ event, element })
     }}
+    className={className + (isSelected ? ` ${className}-selected` : "")}
   >
-    <div className="graf-sidebar-element-container">
-      <FaCaretRight className="graf-sidebar-element-caret" />
-      {createField(
-        (function(elementType) {
-          switch (elementType) {
-            case "Operation":
-              return OperationField
-            case "Class":
-              return ClassField
-            default:
-              throw new Error(`Unknown element type: ${elementType}`)
-          }
-        })(element.typeName),
-        element
+    <SidebarElementContainer
+      className="graf-sidebar-element-container"
+      hoverable={!isSelected}
+    >
+      {isSelected ? (
+        <FaCaretDown className="graf-sidebar-element-caret" />
+      ) : (
+        <FaCaretRight className="graf-sidebar-element-caret" />
       )}
-    </div>
+      <div className="graf-sidebar-element-content">
+        {createField(
+          (function(elementType) {
+            switch (elementType) {
+              case "Operation":
+                return OperationField
+              case "Class":
+                return ClassField
+              default:
+                throw new Error(`Unknown element type: ${elementType}`)
+            }
+          })(element.typeName),
+          { ...element, isExpanded: isSelected }
+        )}
+      </div>
+    </SidebarElementContainer>
   </SidebarElementWrapper>
 )
 
@@ -61,9 +104,21 @@ SidebarElement.propTypes = {
   onClick: PropTypes.func,
   onSelect: PropTypes.func,
   onDeselect: PropTypes.func,
+  className: PropTypes.string.isRequired,
 }
 
-const SidebarWrapper = styled.div``
+const SidebarWrapper = styled.div`
+  .graf-sidebar-list {
+    list-style: none;
+  }
+
+  .graf-sidebar-element-selected {
+    background-color: ${theme.colors.dark.default.paper};
+    transform: translateZ(0);
+  }
+`
+
+const SidebarList = posed.ul()
 
 const Sidebar = ({
   elements,
@@ -77,7 +132,7 @@ const Sidebar = ({
 
   return (
     <SidebarWrapper>
-      <ul>
+      <SidebarList pose="open" className="graf-sidebar-list">
         {elements.map(element => (
           <SidebarElement
             key={element.uuid}
@@ -102,7 +157,7 @@ const Sidebar = ({
             }
           />
         ))}
-      </ul>
+      </SidebarList>
     </SidebarWrapper>
   )
 }
