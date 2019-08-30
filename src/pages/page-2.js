@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 import styled from "styled-components"
 import Rete from "rete"
@@ -27,6 +27,7 @@ import {
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import theme from "../../config/theme"
+import ContextMenu from "../components/context-menu"
 
 const components = [
   new NumberComponent(),
@@ -59,6 +60,7 @@ const ReteWrapper = styled.div`
 `
 
 const SecondPage = props => {
+  /*
   useEffect(() => {
     async function init() {
       const container = document.querySelector("#rete")
@@ -90,13 +92,38 @@ const SecondPage = props => {
     }
     init()
   })
+  */
+  const [contextMenuInfo, setContextMenuInfo] = useState({
+    show: false,
+    cx: 0,
+    cy: 0,
+  })
 
   return (
     <Layout>
       <SEO title="Page two" />
-      <ReteWrapper>
+      {/*<ReteWrapper>
         <div id="rete"></div>
-      </ReteWrapper>
+      </ReteWrapper>*/}
+      <div
+        style={{ width: 500, height: 500 }}
+        onClick={({ nativeEvent }) =>
+          setContextMenuInfo({
+            show: !contextMenuInfo.show,
+            cx: nativeEvent.offsetX,
+            cy: nativeEvent.offsetY,
+          })
+        }
+      >
+        <ContextMenu
+          innerCircle={{
+            ...contextMenuInfo,
+            r: 50,
+            onClick: () => setContextMenuInfo(),
+          }}
+          show={contextMenuInfo.show}
+        />
+      </div>
       <Link to="/page-3/">Go to tree page</Link>
       <Link to="/">Go back to the homepage</Link>
     </Layout>

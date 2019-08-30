@@ -6,6 +6,7 @@ import posed from "react-pose"
 import { Node } from "graf-core"
 import OperationField from "./operation-field"
 import ClassField from "./class-field"
+import ParameterField from "./parameter-field"
 import theme from "../../config/theme"
 
 const createField = (component, props) => {
@@ -61,6 +62,7 @@ const SidebarElement = ({
   onSelect,
   onDeselect,
   className = "graf-sidebar-element",
+  children,
 }) => (
   <SidebarElementWrapper
     onClick={event => {
@@ -87,12 +89,15 @@ const SidebarElement = ({
                 return OperationField
               case "Class":
                 return ClassField
+              case "Parameter":
+                return ParameterField
               default:
                 throw new Error(`Unknown element type: ${elementType}`)
             }
           })(element.typeName),
           { ...element, isExpanded: isSelected }
         )}
+        {children}
       </div>
     </SidebarElementContainer>
   </SidebarElementWrapper>
@@ -105,6 +110,10 @@ SidebarElement.propTypes = {
   onSelect: PropTypes.func,
   onDeselect: PropTypes.func,
   className: PropTypes.string.isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.arrayOf(PropTypes.element),
+  ]),
 }
 
 const SidebarWrapper = styled.div`
@@ -155,7 +164,16 @@ const Sidebar = ({
                   }
                 : undefined
             }
-          />
+          >
+            {selected.find(s => element.equals(s)) &&
+              element.args.map(arg => (
+                <SidebarElement
+                  key={arg.uuid}
+                  element={arg}
+                  onClick={onClick}
+                />
+              ))}
+          </SidebarElement>
         ))}
       </SidebarList>
     </SidebarWrapper>
