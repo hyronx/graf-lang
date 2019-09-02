@@ -13,14 +13,18 @@ const InnerCircle = styled.circle`
   margin: 20px;
 `
 
-const ContextMenu = ({ innerCircle, show = false }) => {
+const ContextMenu = ({ innerCircle, show = false, onShow, onHide }) => {
   return (
     show && (
       <ContextMenuWrapper>
         <svg width={500} height={500}>
-          <InnerCircle {...innerCircle} />
+          <InnerCircle
+            onContextMenu={onShow}
+            onClick={onHide}
+            {...innerCircle}
+          />
+          <FaCaretUp x={innerCircle.cx} y={innerCircle.cy} />
         </svg>
-        <FaCaretUp />
       </ContextMenuWrapper>
     )
   )
@@ -31,9 +35,10 @@ ContextMenu.propTypes = {
     cx: PropTypes.number.isRequired,
     cy: PropTypes.number.isRequired,
     r: PropTypes.number.isRequired,
-    onClick: PropTypes.func,
   }).isRequired,
   show: PropTypes.bool,
+  onShow: PropTypes.func,
+  onHide: PropTypes.func,
 }
 
 export default ContextMenu

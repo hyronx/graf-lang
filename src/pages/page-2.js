@@ -107,21 +107,29 @@ const SecondPage = props => {
       </ReteWrapper>*/}
       <div
         style={{ width: 500, height: 500 }}
-        onClick={({ nativeEvent }) =>
+        onClick={() => setContextMenuInfo({ show: false })}
+        onContextMenu={({ nativeEvent }) => {
+          nativeEvent.preventDefault()
           setContextMenuInfo({
             show: !contextMenuInfo.show,
             cx: nativeEvent.offsetX,
             cy: nativeEvent.offsetY,
           })
-        }
+          return false
+        }}
       >
         <ContextMenu
           innerCircle={{
             ...contextMenuInfo,
             r: 50,
-            onClick: () => setContextMenuInfo(),
           }}
           show={contextMenuInfo.show}
+          onShow={event => {
+            event.preventDefault()
+            setContextMenuInfo({ show: true })
+            return false
+          }}
+          onHide={() => setContextMenuInfo({ show: false })}
         />
       </div>
       <Link to="/page-3/">Go to tree page</Link>
