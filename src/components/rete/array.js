@@ -56,6 +56,8 @@ export class ArrayControl extends Rete.Control {
 export class ArrayComponent extends Rete.Component {
   constructor() {
     super("Array")
+
+    this.nodeType = "Data"
   }
 
   builder(node) {

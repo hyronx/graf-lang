@@ -6,6 +6,7 @@ export class MultiplyComponent extends Rete.Component {
   constructor() {
     super("Multiply")
 
+    this.nodeType = "Operator"
     this.operation = (a, b) => a * b
   }
 

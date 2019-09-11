@@ -1,6 +1,7 @@
 import React from "react"
 import Rete from "rete"
-import { anySocket } from "./interfaces"
+import { Message } from "graf-core"
+import { anySocket, messageSocket } from "./interfaces"
 import { variableSocket } from "./variable"
 
 export const functionSocket = new Rete.Socket("Function")
@@ -46,6 +47,8 @@ export class FunctionControl extends Rete.Control {
 export class FunctionComponent extends Rete.Component {
   constructor() {
     super("Function")
+
+    this.nodeType = "Data"
   }
 
   builder(node) {
@@ -56,7 +59,7 @@ export class FunctionComponent extends Rete.Component {
       functionSocket,
       true
     )
-    const result = new Rete.Output("result", "Any", anySocket)
+    const result = new Rete.Output("result", "Result", messageSocket)
     const out = new Rete.Output("resultOperation", "Operation", functionSocket)
     return node
       .addInput(params)
@@ -77,8 +80,19 @@ export class FunctionComponent extends Rete.Component {
       .map(param => param.value)
       .filter(value => value !== undefined)
 
-    if (paramValues.length > 0)
-      outputs["result"] = resultOp.apply(this, paramValues)
+    if (paramValues.length > 0) {
+      const result = resultOp.apply(this, paramValues)
+      const message = new Message(
+        "result",
+        node,
+        result,
+        result.constructor.name,
+        new Date(),
+        null
+      )
+      console.log(message)
+      outputs["result"] = message
+    }
     outputs["resultOperation"] = resultOp
   }
 }

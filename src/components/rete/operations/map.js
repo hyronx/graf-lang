@@ -5,6 +5,8 @@ import { functionSocket } from "../function"
 export class MapComponent extends Rete.Component {
   constructor() {
     super("Map")
+
+    this.nodeType = "Operation"
   }
 
   builder(node) {

@@ -46,6 +46,8 @@ export class NumberControl extends Rete.Control {
 export class NumberComponent extends Rete.Component {
   constructor() {
     super("Number")
+
+    this.nodeType = "Data"
   }
 
   builder(node) {

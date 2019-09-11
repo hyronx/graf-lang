@@ -6,6 +6,8 @@ import { TextControl } from "../text"
 export class ElseComponent extends Rete.Component {
   constructor() {
     super("Else")
+
+    this.nodeType = "Operation"
   }
 
   builder(node) {

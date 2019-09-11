@@ -65,7 +65,10 @@ const ExtendedWrapper = styled.form`
 `
 
 class ClassField extends React.Component {
-  static types = getTypes().map(t => ({ label: t, value: t }))
+  static types = Object.entries(getTypes()).map(([name, def]) => ({
+    label: name,
+    value: def,
+  }))
 
   constructor(props) {
     super(props)

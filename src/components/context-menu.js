@@ -23,7 +23,6 @@ const ContextMenu = ({ innerCircle, show = false, onShow, onHide }) => {
             onClick={onHide}
             {...innerCircle}
           />
-          <FaCaretUp x={innerCircle.cx} y={innerCircle.cy} />
         </svg>
       </ContextMenuWrapper>
     )

@@ -5,6 +5,8 @@ import { TextControl } from "../text"
 export class LogComponent extends Rete.Component {
   constructor() {
     super("Log")
+
+    this.nodeType = "Operation"
   }
 
   builder(node) {

@@ -4,6 +4,8 @@ import { NumberControl, numberSocket } from "../number"
 export class PowerComponent extends Rete.Component {
   constructor() {
     super("Power")
+
+    this.nodeType = "Operator"
   }
 
   builder(node) {

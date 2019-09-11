@@ -4,6 +4,8 @@ import { NumberControl, numberSocket } from "../number"
 export class DivideComponent extends Rete.Component {
   constructor() {
     super("Divide")
+
+    this.nodeType = "Operator"
   }
 
   builder(node) {

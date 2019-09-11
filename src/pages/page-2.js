@@ -4,13 +4,15 @@ import styled from "styled-components"
 import Rete from "rete"
 import ConnectionPlugin from "rete-connection-plugin"
 import ReactRenderPlugin from "rete-react-render-plugin"
-import ContextMenuPlugin from "rete-context-menu-plugin"
+import ContextMenuPlugin from "../components/rete-context-menu"
+
 import {
   NumberComponent,
   TextComponent,
   VariableComponent,
   FunctionComponent,
   ArrayComponent,
+  ReferenceComponent,
   AddComponent,
   SubtractComponent,
   MultiplyComponent,
@@ -35,6 +37,7 @@ const components = [
   new VariableComponent(),
   new FunctionComponent(),
   new ArrayComponent(),
+  new ReferenceComponent(),
   new AddComponent(),
   new SubtractComponent(),
   new MultiplyComponent(),
@@ -60,7 +63,6 @@ const ReteWrapper = styled.div`
 `
 
 const SecondPage = props => {
-  /*
   useEffect(() => {
     async function init() {
       const container = document.querySelector("#rete")
@@ -92,21 +94,29 @@ const SecondPage = props => {
     }
     init()
   })
-  */
+
+  /*
   const [contextMenuInfo, setContextMenuInfo] = useState({
     show: false,
     cx: 0,
     cy: 0,
   })
+  */
 
   return (
     <Layout>
       <SEO title="Page two" />
-      {/*<ReteWrapper>
+      <ReteWrapper>
         <div id="rete"></div>
-      </ReteWrapper>*/}
-      <div
-        style={{ width: 500, height: 500 }}
+      </ReteWrapper>
+      {/*<div
+        style={{
+          width: 500,
+          height: 500,
+          borderStyle: "solid",
+          borderColor: "black",
+          borderWidth: "2px",
+        }}
         onClick={() => setContextMenuInfo({ show: false })}
         onContextMenu={({ nativeEvent }) => {
           nativeEvent.preventDefault()
@@ -121,7 +131,7 @@ const SecondPage = props => {
         <ContextMenu
           innerCircle={{
             ...contextMenuInfo,
-            r: 50,
+            r: 20,
           }}
           show={contextMenuInfo.show}
           onShow={event => {
@@ -131,7 +141,7 @@ const SecondPage = props => {
           }}
           onHide={() => setContextMenuInfo({ show: false })}
         />
-      </div>
+      </div>*/}
       <Link to="/page-3/">Go to tree page</Link>
       <Link to="/">Go back to the homepage</Link>
     </Layout>

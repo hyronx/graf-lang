@@ -8,6 +8,8 @@ export const matchSocket = new Rete.Socket("Matcher")
 export class MatchComponent extends Rete.Component {
   constructor() {
     super("Match")
+
+    this.nodeType = "Operation"
   }
 
   builder(node) {

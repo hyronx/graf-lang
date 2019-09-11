@@ -6,6 +6,7 @@ export class AddComponent extends Rete.Component {
   constructor() {
     super("Add")
 
+    this.nodeType = "Operator"
     this.operation = (a, b) => a + b
   }
 

@@ -5,6 +5,8 @@ import { TextControl } from "../text"
 export class JoinComponent extends Rete.Component {
   constructor() {
     super("Join")
+
+    this.nodeType = "Operation"
   }
 
   builder(node) {

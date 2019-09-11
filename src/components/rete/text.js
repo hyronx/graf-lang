@@ -46,6 +46,8 @@ export class TextControl extends Rete.Control {
 export class TextComponent extends Rete.Component {
   constructor() {
     super("Text")
+
+    this.nodeType = "Data"
   }
 
   builder(node) {
