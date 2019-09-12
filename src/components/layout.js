@@ -54,9 +54,8 @@ const Layout = ({
             <Col xs={6} md={4} lg={4}>
               <Sidebar
                 elements={getTypes()}
-                selectable={true}
-                onAddElement={onAddElement}
-                onElementAdded={onElementAdded}
+                width={500}
+                height={600}
                 onSelect={onElementSelected}
                 onDeselect={onElementDeselected}
               />

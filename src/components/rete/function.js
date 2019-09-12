@@ -1,99 +1,88 @@
 import React from "react"
 import Rete from "rete"
-import { Message } from "graf-core"
-import { anySocket, messageSocket } from "./interfaces"
+import { anySocket } from "./interfaces"
 import { variableSocket } from "./variable"
+import { TextControl } from "./text"
+
+const windowGlobal = typeof window !== "undefined" ? window : undefined
 
 export const functionSocket = new Rete.Socket("Function")
 functionSocket.combineWith(anySocket)
-
-export class FunctionControl extends Rete.Control {
-  static component = ({ value, onChange }) => (
-    <input
-      type="text"
-      value={value}
-      ref={ref => {
-        ref && ref.addEventListener("pointerdown", e => e.stopPropagation())
-      }}
-      onChange={e => onChange(String(e.target.value))}
-    />
-  )
-
-  constructor(emitter, key, node, readonly = false) {
-    super(key)
-    this.emitter = emitter
-    this.key = key
-    this.component = FunctionControl.component
-
-    const initial = node.data[key] || ""
-    node.data[key] = initial
-    this.props = {
-      readonly,
-      value: initial,
-      onChange: value => {
-        this.setValue(value)
-        this.emitter.trigger("process")
-      },
-    }
-  }
-
-  setValue(value) {
-    this.props.value = value
-    this.putData(this.key, value)
-    this.update()
-  }
-}
+functionSocket.combineWith(variableSocket)
 
 export class FunctionComponent extends Rete.Component {
   constructor() {
     super("Function")
 
-    this.nodeType = "Data"
+    this.nodeType = "Meta"
+    this.module = {
+      nodeType: "module",
+    }
   }
 
   builder(node) {
-    const params = new Rete.Input("params", "Parameters", variableSocket, true)
-    const operation = new Rete.Input(
-      "operations",
-      "Operations",
-      functionSocket,
-      true
-    )
-    const result = new Rete.Output("result", "Result", messageSocket)
-    const out = new Rete.Output("resultOperation", "Operation", functionSocket)
+    const control = new TextControl(this.editor, "module", {
+      data: { module: "Function name..." },
+    })
+    control.onChange = () => {
+      this.updateModuleSockets(node)
+      node.update()
+    }
+    return node.addControl(control)
+  }
+
+  change(node, item) {
+    node.data.module = item
+    this.editor.trigger("process")
+  }
+}
+
+export class FunctionInputComponent extends Rete.Component {
+  constructor() {
+    super("Function Input")
+
+    this.nodeType = "Meta"
+    this.module = {
+      nodeType: "input",
+      socket: anySocket,
+    }
+  }
+
+  builder(node) {
+    const out = new Rete.Output("output", "Value", anySocket)
+    const control = new TextControl(this.editor, "name", { data: {} })
+    const dataControl = new TextControl(this.editor, "value", {
+      type: "any",
+      value: "",
+      data: {},
+    })
+
     return node
-      .addInput(params)
-      .addInput(operation)
-      .addOutput(result)
+      .addControl(control)
+      .addControl(dataControl)
       .addOutput(out)
   }
 
-  worker(node, inputs, outputs) {
-    const ops = inputs.operations.length
-      ? inputs.operations
-      : node.data.operations
+  async worker(node, inputs, outputs) {
+    if (!outputs["value"]) outputs["value"] = node.data.value
+  }
+}
 
-    const resultOp = (...args) =>
-      ops.reduce((params, op) => [op.apply(this, params)], args)[0]
+export class FunctionOutputComponent extends Rete.Component {
+  constructor() {
+    super("Function Output")
 
-    const paramValues = inputs.params
-      .map(param => param.value)
-      .filter(value => value !== undefined)
-
-    if (paramValues.length > 0) {
-      const result = resultOp.apply(this, paramValues)
-      const message = new Message(
-        "result",
-        node,
-        result,
-        result.constructor.name,
-        new Date(),
-        null
-      )
-      console.log(message)
-      outputs["result"] = message
+    this.nodeType = "Meta"
+    this.module = {
+      nodeType: "output",
     }
-    outputs["resultOperation"] = resultOp
+  }
+
+  builder(node) {
+    const input = new Rete.Input("input", "Any", anySocket)
+    const control = new TextControl(this.editor, "name", { data: {} })
+
+    return node.addControl(control).addInput(input)
   }
 }
 

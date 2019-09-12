@@ -1386,6 +1386,14 @@
   dependencies:
     "@vx/point" "0.0.189"
 
+"@vx/gradient@^0.0.189":
+  version "0.0.189"
+  resolved "https://registry.yarnpkg.com/@vx/gradient/-/gradient-0.0.189.tgz#5b53be804cc7205ed6c0d9c4c10608543f105f58"
+  integrity sha512-KBfipcEY7JyVyYpVNP66dBryS5bK/8ZiOCKG0I0UtRPmsU3x5uOprJ9zgB1ZbWfLhk3Avtp3Gt4/Zkle9azu4A==
+  dependencies:
+    classnames "^2.2.5"
+    prop-types "^15.5.7"
+
 "@vx/group@0.0.189", "@vx/group@^0.0.189":
   version "0.0.189"
   resolved "https://registry.yarnpkg.com/@vx/group/-/group-0.0.189.tgz#030787b66ad5a48ec612ecc0e7df3fcfeb7b894c"
@@ -1393,6 +1401,24 @@
   dependencies:
     classnames "^2.2.5"
     prop-types "^15.6.2"
+
+"@vx/group@0.0.190":
+  version "0.0.190"
+  resolved "https://registry.yarnpkg.com/@vx/group/-/group-0.0.190.tgz#9bc1e568dbd44c04a0abad9a9a74c7364f231a35"
+  integrity sha512-tyFIQS4iB987281ZWNmozdjqzyBrM4lsw4J8ObeJTeybTi1T5EgdkN/pmviCCIcT29Q1kVtFOC8FoQLXkcimcQ==
+  dependencies:
+    classnames "^2.2.5"
+    prop-types "^15.6.2"
+
+"@vx/hierarchy@^0.0.190":
+  version "0.0.190"
+  resolved "https://registry.yarnpkg.com/@vx/hierarchy/-/hierarchy-0.0.190.tgz#c1a6481b1dfdf195beb3b3cc9967671481e47813"
+  integrity sha512-pUmTFSUrXPPaCfnZNGGrS2uhvwh31JyUIreEUCObxKX5F+1C3rqWJKZ51t5UgjXU8aDztaUYg/0N0C/AxMcy6w==
+  dependencies:
+    "@vx/group" "0.0.190"
+    classnames "^2.2.5"
+    d3-hierarchy "^1.1.4"
+    prop-types "^15.6.1"
 
 "@vx/network@^0.0.189":
   version "0.0.189"
@@ -3735,6 +3761,11 @@ d3-force@^2.0.1:
     d3-dispatch "1"
     d3-quadtree "1"
     d3-timer "1"
+
+d3-hierarchy@^1.1.4:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/d3-hierarchy/-/d3-hierarchy-1.1.8.tgz#7a6317bd3ed24e324641b6f1e76e978836b008cc"
+  integrity sha512-L+GHMSZNwTpiq4rt9GEsNcpLa4M96lXMR8M/nMG9p5hBE0jy6C+3hWtyZMenPQdwla249iJy7Nx0uKt3n+u9+w==
 
 d3-path@1, d3-path@^1.0.5:
   version "1.0.7"
@@ -9800,7 +9831,7 @@ prop-types@15.6.2:
     loose-envify "^1.3.1"
     object-assign "^4.1.1"
 
-prop-types@15.x, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@15.x, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -10825,6 +10856,13 @@ rete-context-menu-plugin@^0.4.1:
     lodash "^4.17.11"
     vue "^2.5.17"
 
+rete-module-plugin@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/rete-module-plugin/-/rete-module-plugin-0.3.0.tgz#2ac0d4ac670fe7d1a6243c2a79a328a5d7a4c898"
+  integrity sha512-6l813BEAUVQxZYHqw4rgDvjSpGqaaXV0G7YSxUJj+JLXibRA2we+NwJFkbQZrvDCMpgjO0o0ySF5+V+9yXEUkw==
+  dependencies:
+    rete "1.1.0"
+
 rete-react-render-plugin@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/rete-react-render-plugin/-/rete-react-render-plugin-0.2.0.tgz#35e74383fc9c12c8a61fc54c74de43e85ac765f7"
@@ -10832,6 +10870,11 @@ rete-react-render-plugin@^0.2.0:
   dependencies:
     react "^16.8.6"
     react-dom "^16.8.6"
+
+rete@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/rete/-/rete-1.1.0.tgz#9038bded358fbeb21682565c6d271aed9c4a7fda"
+  integrity sha512-XVZ3DheqPeWEL2ClGI+dK+IRAUQhfTmBCGiiHAOHY0AHcTSZALGji+8MLuIgMVaAZ5HvCf6T/GtuF4bZphEixw==
 
 rete@^1.4.1:
   version "1.4.1"

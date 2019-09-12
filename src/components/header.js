@@ -10,6 +10,7 @@ const menuPrefixClass = "graf-header-menu"
 const HeaderWrapper = styled.header`
   background: ${theme.colors.dark.default.background};
   margin-bottom: 1.45rem;
+  user-select: none;
 `
 
 const MenuItemWrapper = styled.div`
@@ -20,6 +21,7 @@ const MenuItemWrapper = styled.div`
   display: inline-grid;
   grid: 2rem / auto auto;
   text-align: center;
+  user-select: none;
 `
 
 const handleClick = onAddElement => ({ key }) => {
@@ -33,6 +35,9 @@ const handleClick = onAddElement => ({ key }) => {
       break
     case "1-3":
       //typeToAdd = "Parameter"
+      break
+    case "2-1":
+      typeToAdd = "Node"
       break
   }
   onAddElement(typeToAdd)

@@ -112,7 +112,10 @@ export const ExtendedField = props => {
             placeholder="Type"
             value={{ label: props.type, value: props.type }}
             onChange={(...args) => props.handleChange("type", ...args)}
-            options={getTypes().map(t => ({ label: t, value: t }))}
+            options={Object.entries(getTypes()).map(([key, value]) => ({
+              label: key,
+              value: key,
+            }))}
             styles={selectStyles}
           />
         </div>,

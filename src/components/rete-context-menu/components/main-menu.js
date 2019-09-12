@@ -102,7 +102,7 @@ export const MainMenu = ({
       <Modal isOpen={show} onRequestClose={onHide} style={modalStyles}>
         <ModalInnerWrapper cssHeight={height} cssWidth={width}>
           <Select
-            defaultMenuIsOpen={show}
+            menuIsOpen={show}
             autoFocus={true} // eslint-disable-line
             isSearchable={true}
             isClearable={true}
@@ -114,6 +114,7 @@ export const MainMenu = ({
             styles={selectStyles}
             menuPortalTarget={document.body}
             onChange={handleChange}
+            onMenuClose={() => setValue(null)}
             {...selectProps}
           />
         </ModalInnerWrapper>

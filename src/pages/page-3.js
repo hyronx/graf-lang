@@ -225,7 +225,7 @@ class ThirdPage extends React.Component {
   }
 
   handleAddElement = (type, parentNode) =>
-    this.setState({ openModal: type, parentNode: parentNode })
+    this.setState({ openModal: type, parentNode })
 
   handleElementAdded = () =>
     this.setState({

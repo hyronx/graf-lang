@@ -158,13 +158,13 @@ class ClassField extends React.Component {
   }
 
   render() {
+    const { index, isBoxed, isExpanded } = this.props
+    const { name, type } = this.state
     return (
-      <FieldWrapper
-        className={`graf-class active ${this.props.isBoxed ? "box" : ""}`}
-      >
-        {this.props.isExpanded ? (
+      <FieldWrapper className={`graf-class active ${isBoxed ? "box" : ""}`}>
+        {isExpanded ? (
           <ExtendedField
-            index={this.props.index}
+            index={index}
             prefix={"class"}
             wrapper={ExtendedWrapper}
             title={props => (
@@ -195,17 +195,17 @@ class ClassField extends React.Component {
           />
         ) : (
           <CompactField
-            index={this.props.index}
+            index={index}
             prefix={"class"}
             wrapper={CompactWrapper}
             props={[
               { seperator: "class " },
-              { name: "name", label: this.state.name },
+              { name: "name", label: name },
             ].concat(
-              this.state.type
+              type
                 ? [
                     { seperator: " extends " },
-                    { name: "supertype", label: this.state.type },
+                    { name: "supertype", label: type },
                   ]
                 : []
             )}

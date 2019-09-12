@@ -163,13 +163,13 @@ class ParameterField extends React.Component {
   }
 
   render() {
+    const { index, isBoxed } = this.props
+    const { isExpanded, name, type, description } = this.state
     return (
-      <FieldWrapper
-        className={`graf-param active ${this.props.isBoxed ? "box" : ""}`}
-      >
-        {this.state.isExpanded ? (
+      <FieldWrapper className={`graf-param active ${isBoxed ? "box" : ""}`}>
+        {isExpanded ? (
           <ExtendedField
-            index={this.props.index}
+            index={index}
             prefix={"param"}
             wrapper={ExtendedWrapper}
             title={props => <h3>Parameter {props.index}</h3>}
@@ -195,15 +195,15 @@ class ParameterField extends React.Component {
           </ExtendedField>
         ) : (
           <CompactField
-            index={this.props.index}
+            index={index}
             prefix={"param"}
             wrapper={CompactWrapper}
             props={[
-              { name: "name", label: this.state.name },
+              { name: "name", label: name },
               { seperator: ":" },
-              { name: "type", label: this.state.type },
+              { name: "type", label: type },
               { seperator: "–" },
-              { name: "desc", label: this.state.description },
+              { name: "desc", label: description },
             ]}
           />
         )}
