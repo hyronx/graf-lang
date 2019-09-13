@@ -83,6 +83,15 @@ class OperationField extends React.Component {
     }
   }
 
+  componentDidMount() {
+    if (!this.state.paramFields.length) {
+      this.setState({
+        isParamFieldExpanded: false,
+        paramFields: this.props.args.map(arg => this.addParamField(arg)),
+      })
+    }
+  }
+
   handleChange = (source, event, data) => {
     switch (source) {
       case "type":
@@ -157,7 +166,7 @@ class OperationField extends React.Component {
     )
   }
 
-  addParamField = () => {
+  addParamField = (paramData = {}) => {
     if (!this.state.isAddParamDisabled) {
       this.setState(state => ({
         isAddParamDisabled: !state.isAddParamDisabled,
@@ -183,6 +192,7 @@ class OperationField extends React.Component {
               }))
               paramField.isExpanded = false
             }}
+            {...paramData}
           />,
         ],
       }))

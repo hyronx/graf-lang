@@ -157,54 +157,62 @@ const SecondPage = props => {
 
   const getModalContent = () => {
     let modalContent = null
-    switch (openModal) {
-      case "Class":
-        modalContent = (
-          <ClassField
-            index={0}
-            isExpanded={true}
-            isEditable={true}
-            isBoxed={false}
-            onUpdate={handleAddClassType}
-          />
-        )
-        break
-      case "Parameter":
-        modalContent = (
-          <ParameterField
-            index={0}
-            isExpanded={true}
-            isEditable={true}
-            isBoxed={false}
-            onUpdate={handleAddParam}
-          />
-        )
-        break
-      case "TestSet":
-        modalContent = (
-          <TestSetField
-            index={0}
-            isExpanded={true}
-            isEditable={true}
-            isBoxed={false}
-            onUpdate={handleAddTestSet}
-          />
-        )
-        break
-      case "Operation":
-        modalContent = (
-          <OperationField
-            index={0}
-            isExpanded={true}
-            isEditable={true}
-            isBoxed={false}
-            showParams={true}
-            onUpdate={handleAddOpType}
-          />
-        )
-        break
-      default:
-        break
+    if (openModal) {
+      switch (openModal.type) {
+        case "Class":
+          modalContent = (
+            <ClassField
+              index={0}
+              isExpanded={true}
+              isEditable={true}
+              isBoxed={false}
+              onUpdate={handleAddClassType}
+              {...openModal.data}
+            />
+          )
+          break
+        case "Parameter":
+          modalContent = (
+            <ParameterField
+              index={0}
+              isExpanded={true}
+              isEditable={true}
+              isBoxed={false}
+              onUpdate={handleAddParam}
+              {...openModal.data}
+            />
+          )
+          break
+        case "TestSet":
+          modalContent = (
+            <TestSetField
+              index={0}
+              isExpanded={true}
+              isEditable={true}
+              isBoxed={false}
+              onUpdate={handleAddTestSet}
+              {...openModal.data}
+            />
+          )
+          break
+        case "Operation":
+          modalContent = (
+            <OperationField
+              index={0}
+              isExpanded={true}
+              isEditable={true}
+              isBoxed={false}
+              showParams={true}
+              onUpdate={handleAddOpType}
+              {...openModal.data}
+            />
+          )
+          break
+        case "Node":
+          break
+        default:
+          break
+      }
     }
     return modalContent
   }
@@ -237,7 +245,7 @@ const SecondPage = props => {
     handleElementAdded()
   }
 
-  const handleAddElement = (type, parentNode) => setOpenModal(type)
+  const handleAddElement = (type, data) => setOpenModal({ type, data })
 
   const handleElementAdded = () => setOpenModal(null)
 
@@ -271,7 +279,7 @@ const SecondPage = props => {
     if (node.data.typeName !== "Operation")
       throw new Error("Selected node is not a Operation:", node)
 
-    node.data.code = await editor.toJSON()
+    node.data.code = editor.toJSON()
     updateType(node.data)
   }
 

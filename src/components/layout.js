@@ -58,6 +58,7 @@ const Layout = ({
                 height={600}
                 onSelect={onElementSelected}
                 onDeselect={onElementDeselected}
+                onAddElement={onAddElement}
               />
             </Col>
             <Col xs={6} md={8} lg={8}>

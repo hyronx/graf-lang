@@ -8,6 +8,7 @@ import { Arc, LinkHorizontal } from "@vx/shape"
 import { LinearGradient } from "@vx/gradient"
 import { hierarchy } from "d3-hierarchy"
 import { Type } from "graf-core"
+import useClickPreventionOnDoubleClick from "../utils/click"
 
 const peach = "#fd9b93"
 const pink = "#fe6e9e"
@@ -30,16 +31,26 @@ const traverseToRoot = (startNode, callback) => {
 }
 
 // eslint-disable-next-line
-function Node({ node, onSelect, onDeselect }) {
+function Node({ node, onSelect, onDeselect, onAddElement }) {
   const width = 40
   const height = 20
   const centerX = -width / 2
   const centerY = -height / 2
   const isRoot = node.depth === 0
   const isParent = !!node.children
+  const handleClick = () => {
+    if (!isSelected) onSelect(node)
+    else onDeselect(node)
+
+    setIsSelected(!isSelected)
+  }
 
   const [isSelected, setIsSelected] = useState(false)
   const [clicked, setClicked] = useState(false)
+  const [
+    handleNodeClick,
+    handleNodeDoubleClick,
+  ] = useClickPreventionOnDoubleClick(handleClick, onAddElement)
 
   useEffect(() => {
     if (clicked) {
@@ -49,12 +60,6 @@ function Node({ node, onSelect, onDeselect }) {
   }, [clicked])
 
   node.setIsSelected = setIsSelected
-  const handleClick = () => {
-    if (!isSelected) onSelect(node)
-    else onDeselect(node)
-
-    setIsSelected(!isSelected)
-  }
 
   if (isRoot) {
     return (
@@ -102,17 +107,8 @@ function Node({ node, onSelect, onDeselect }) {
         strokeDasharray={"2,2"}
         strokeOpacity={0.6}
         rx={10}
-        onDoubleClick={() => {
-          console.log("double clicked")
-          setClicked(false)
-        }}
-        onClick={async () => {
-          if (!clicked) {
-            setTimeout(() => {
-              setClicked(true)
-            }, 300)
-          }
-        }}
+        onClick={handleNodeClick}
+        onDoubleClick={handleNodeDoubleClick}
       />
       <text
         dy={".33em"}
@@ -233,6 +229,7 @@ const Sidebar = ({
   },
   onSelect,
   onDeselect,
+  onAddElement,
 }) => {
   const data = convertToHierarchy(elements)
   const yMax = height - margin.top - margin.bottom
@@ -275,6 +272,10 @@ const Sidebar = ({
                       )
                       if (onDeselect) onDeselect(path)
                     }}
+                    onAddElement={() => {
+                      if (onAddElement)
+                        onAddElement(node.data.typeName, node.data)
+                    }}
                   />
                 )
               })}
@@ -300,4 +301,5 @@ Sidebar.propTypes = {
   }),
   onSelect: PropTypes.func,
   onDeselect: PropTypes.func,
+  onAddElement: PropTypes.func,
 }
