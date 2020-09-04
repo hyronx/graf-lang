@@ -26,7 +26,7 @@
     "gatsby-plugin-sharp": "^2.1.5",
     "gatsby-source-filesystem": "^2.0.39",
     "gatsby-transformer-sharp": "^2.1.21",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "popmotion": "^8.7.0",
     "prop-types": "^15.7.2",
     "rc-menu": "^7.4.23",
